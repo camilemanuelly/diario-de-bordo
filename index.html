@@ -16,6 +16,7 @@
       --accent-hover: #2563eb;
       --positive: #4ade80;
       --negative: #f87171;
+      --gold: #fbbf24;
     }
 
     * {
@@ -330,7 +331,7 @@
     }
 
     /* =============================================
-       PERFIL & CONFIGURAÇÃO DE ESCALA
+       PERFIL, PATENTES & CONFIGURAÇÃO DE ESCALA
        ============================================= */
 
     .profile-header {
@@ -344,36 +345,100 @@
     .profile-identity {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 18px;
     }
 
     .avatar {
-      width: 68px;
-      height: 68px;
+      width: 72px;
+      height: 72px;
       border-radius: 50%;
-      border: 1px solid rgba(120, 170, 230, 0.22);
-      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid rgba(147, 197, 253, 0.35);
+      background: linear-gradient(145deg, rgba(30, 58, 138, 0.55), rgba(15, 23, 42, 0.85));
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 1.25rem;
-      color: #cbd5e1;
+      color: #e2e8f0;
       overflow: hidden;
       flex-shrink: 0;
+      box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.65);
+    }
+
+    .avatar.avatar-comando {
+      border-color: rgba(251, 191, 36, 0.72);
+      box-shadow:
+        0 0 0 2px rgba(251, 191, 36, 0.16),
+        0 12px 26px -8px rgba(245, 158, 11, 0.35);
     }
 
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
+    .profile-title-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
     .profile-name {
-      font-size: 1.15rem;
-      font-weight: 600;
-      margin: 0 0 6px 0;
-      color: #f1f5f9;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0;
+      color: #f8fafc;
+      letter-spacing: -0.015em;
+    }
+
+    .posto-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.24), rgba(30, 64, 175, 0.32));
+      border: 1px solid rgba(147, 197, 253, 0.45);
+      color: #bfdbfe;
+      box-shadow: 0 4px 14px -4px rgba(37, 99, 235, 0.45);
+    }
+
+    .posto-badge.posto-comando {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.26), rgba(180, 83, 9, 0.34));
+      border: 1px solid rgba(251, 191, 36, 0.72);
+      color: #fde68a;
+      box-shadow: 0 6px 18px -4px rgba(245, 158, 11, 0.45);
+    }
+
+    .posto-badge .posto-sigla {
+      padding: 1px 6px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.14);
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .posto-badge.posto-comando .posto-sigla {
+      background: rgba(251, 191, 36, 0.28);
+      color: #fef3c7;
+    }
+
+    .posto-subline {
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+    }
+
+    .posto-subline em {
+      font-style: normal;
+      color: #94a3b8;
     }
 
     .profile-details {
-      font-size: 0.875rem;
+      font-size: 0.85rem;
       color: #94a3b8;
       display: flex;
       flex-wrap: wrap;
@@ -405,7 +470,7 @@
       padding-top: 22px;
       border-top: 1px solid rgba(120, 170, 230, 0.1);
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
       gap: 14px;
       align-items: end;
     }
@@ -626,7 +691,6 @@
     .cal-day.is-folga { background: rgba(74, 222, 128, 0.13); }
     .cal-day.is-atestado { background: rgba(250, 204, 21, 0.12); }
 
-    /* Estilos visuais da previsao */
     .cal-day.is-prev-trabalho {
       background: repeating-linear-gradient(
         -45deg,
@@ -727,9 +791,15 @@
       padding-right: 32px;
     }
 
-    .field select option {
+    .field select option,
+    .field select optgroup {
       background: #0d1e35;
       color: #f1f5f9;
+    }
+
+    .field select optgroup {
+      color: #93c5fd;
+      font-weight: 600;
     }
 
     .field input:focus,
@@ -920,7 +990,7 @@
       .profile-header { align-items: flex-start; }
       .profile-buttons { width: 100%; }
       .profile-buttons button { flex: 1; }
-      .avatar { width: 56px; height: 56px; font-size: 1.05rem; }
+      .avatar { width: 58px; height: 58px; font-size: 1.05rem; }
       .profile-name { font-size: 1.05rem; }
       .profile-details { font-size: 0.8rem; gap: 6px; flex-direction: column; align-items: flex-start; }
       .profile-form { grid-template-columns: 1fr; }
@@ -1077,7 +1147,11 @@
         <div class="profile-identity">
           <div class="avatar" id="avatar-box">DB</div>
           <div>
-            <h2 class="profile-name" id="perfil-nome-exibicao">Sem nome definido</h2>
+            <div class="profile-title-row">
+              <h2 class="profile-name" id="perfil-nome-exibicao">Sem nome definido</h2>
+              <span class="posto-badge" id="perfil-posto-badge" style="display: none;"></span>
+            </div>
+            <div class="posto-subline" id="perfil-posto-detalhe" style="display: none;"></div>
             <div class="profile-details">
               <span id="perfil-empresa">Empresa: —</span>
               <span id="perfil-admissao">Admissao: —</span>
@@ -1095,6 +1169,30 @@
         <div class="field">
           <label for="input-nome">Nome ou apelido</label>
           <input type="text" id="input-nome" placeholder="Como quer aparecer">
+        </div>
+        <div class="field">
+          <label for="select-posto">Patente / Função a bordo</label>
+          <select id="select-posto">
+            <option value="">Sem patente definida</option>
+            <optgroup label="Seção de Convés (Comando e Manobra)">
+              <option value="CFL">CFL — Capitão Fluvial (comando dos comboios)</option>
+              <option value="PLF">PLF — Piloto Fluvial</option>
+              <option value="MFL">MFL — Mestre Fluvial</option>
+              <option value="CMF">CMF — Contramestre Fluvial</option>
+              <option value="MFC">MFC — Marinheiro Fluvial de Convés</option>
+              <option value="MAM">MAM — Marinheiro Fluvial Auxiliar de Convés</option>
+            </optgroup>
+            <optgroup label="Seção de Máquinas (Motores e Propulsão)">
+              <option value="SUF">SUF — Supervisor Maquinista-Motorista Fluvial (chefe de máquinas)</option>
+              <option value="CTF">CTF — Condutor Maquinista-Motorista Fluvial</option>
+              <option value="MFM">MFM — Marinheiro Fluvial de Máquinas</option>
+              <option value="MMA">MMA — Marinheiro Fluvial Auxiliar de Máquinas</option>
+            </optgroup>
+            <optgroup label="Seção de Câmara (Alimentação e Apoio)">
+              <option value="CZA">CZA — Cozinheiro</option>
+              <option value="TAA">TAA — Taifeiro</option>
+            </optgroup>
+          </select>
         </div>
         <div class="field">
           <label for="input-empresa">Empresa</label>
@@ -1274,6 +1372,105 @@
   const SUPABASE_URL = 'https://lnnsabfptrihvqxjsjet.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_JccD6GwRfiieTSCoqlJt9A_jrn--ykd';
 
+  const PATENTES_BORDO = {
+    CFL: {
+      sigla: 'CFL',
+      titulo: 'Capitão Fluvial',
+      secao: 'Seção de Convés',
+      foco: 'Comando e Manobra',
+      nota: 'posto máximo no comando dos comboios',
+      comando: true
+    },
+    PLF: {
+      sigla: 'PLF',
+      titulo: 'Piloto Fluvial',
+      secao: 'Seção de Convés',
+      foco: 'Comando e Manobra',
+      nota: '',
+      comando: true
+    },
+    MFL: {
+      sigla: 'MFL',
+      titulo: 'Mestre Fluvial',
+      secao: 'Seção de Convés',
+      foco: 'Comando e Manobra',
+      nota: '',
+      comando: true
+    },
+    CMF: {
+      sigla: 'CMF',
+      titulo: 'Contramestre Fluvial',
+      secao: 'Seção de Convés',
+      foco: 'Comando e Manobra',
+      nota: '',
+      comando: false
+    },
+    MFC: {
+      sigla: 'MFC',
+      titulo: 'Marinheiro Fluvial de Convés',
+      secao: 'Seção de Convés',
+      foco: 'Comando e Manobra',
+      nota: '',
+      comando: false
+    },
+    MAF: {
+      sigla: 'MAM',
+      titulo: 'Marinheiro Fluvial Auxiliar de Convés',
+      secao: 'Seção de Convés',
+      foco: 'Comando e Manobra',
+      nota: 'porta de entrada',
+      comando: false
+    },
+    SUF: {
+      sigla: 'SUF',
+      titulo: 'Supervisor Maquinista-Motorista Fluvial',
+      secao: 'Seção de Máquinas',
+      foco: 'Motores e Propulsão',
+      nota: 'chefe de máquinas da embarcação',
+      comando: true
+    },
+    CTF: {
+      sigla: 'CTF',
+      titulo: 'Condutor Maquinista-Motorista Fluvial',
+      secao: 'Seção de Máquinas',
+      foco: 'Motores e Propulsão',
+      nota: '',
+      comando: true
+    },
+    MFM: {
+      sigla: 'MFM',
+      titulo: 'Marinheiro Fluvial de Máquinas',
+      secao: 'Seção de Máquinas',
+      foco: 'Motores e Propulsão',
+      nota: '',
+      comando: false
+    },
+    MMA: {
+      sigla: 'MMA',
+      titulo: 'Marinheiro Fluvial Auxiliar de Máquinas',
+      secao: 'Seção de Máquinas',
+      foco: 'Motores e Propulsão',
+      nota: 'porta de entrada',
+      comando: false
+    },
+    CZA: {
+      sigla: 'CZA',
+      titulo: 'Cozinheiro',
+      secao: 'Seção de Câmara',
+      foco: 'Alimentação e Apoio',
+      nota: '',
+      comando: false
+    },
+    TAA: {
+      sigla: 'TAA',
+      titulo: 'Taifeiro',
+      secao: 'Seção de Câmara',
+      foco: 'Alimentação e Apoio',
+      nota: '',
+      comando: false
+    }
+  };
+
   let supabaseClient = null;
   let modoAuth = 'login';
   let usuarioAtual = null;
@@ -1285,7 +1482,7 @@
   if (!SUPABASE_URL.startsWith('http')) {
     document.getElementById('auth-msg').innerText =
       'Aviso: cole sua Project URL e sua Anon Key no final do arquivo index.html antes de entrar.';
-} else {
+  } else {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
       auth: {
         persistSession: true,
@@ -1301,6 +1498,30 @@
     const diasTrab = Math.max(1, parseInt(perfilAtual?.dias_trabalho, 10) || 10);
     const diasFolg = Math.max(1, parseInt(perfilAtual?.dias_folga, 10) || 5);
     return { diasTrab, diasFolg, proporcao: diasFolg / diasTrab };
+  }
+
+  function obterPostoInfo(codigoPosto) {
+    if (!codigoPosto) return null;
+    return PATENTES_BORDO[codigoPosto] || null;
+  }
+
+function escaparHTML(valor) {
+  return String(valor ?? '')
+    .split('&').join(String.fromCharCode(38, 97, 109, 112, 59))
+    .split('<').join(String.fromCharCode(38, 108, 116, 59))
+    .split('>').join(String.fromCharCode(38, 103, 116, 59))
+    .split('"').join(String.fromCharCode(38, 113, 117, 111, 116, 59))
+    .split("'").join(String.fromCharCode(38, 35, 51, 57, 59));
+}
+
+  function urlAvatarSegura(url) {
+    if (!url || typeof url !== 'string') return null;
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === 'https:' ? parsed.href : null;
+    } catch {
+      return null;
+    }
   }
 
   // --- AUTENTICACAO ---
@@ -1419,32 +1640,13 @@
     if (!data) {
       const { data: novoPerfil } = await supabaseClient
         .from('perfis')
-        .insert([{ id: usuarioAtual.id, nome_exibicao: '', empresa: 'Atem', dias_trabalho: 10, dias_folga: 5 }])
+        .insert([{ id: usuarioAtual.id, nome_exibicao: '', posto: '', empresa: 'Atem', dias_trabalho: 10, dias_folga: 5 }])
         .select()
         .single();
       perfilAtual = novoPerfil;
     } else {
       perfilAtual = data;
     }
-    
-function escaparHTML(valor) {
-    return String(valor ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
-  function urlAvatarSegura(url) {
-    if (!url || typeof url !== 'string') return null;
-    try {
-      const parsed = new URL(url);
-      return parsed.protocol === 'https:' ? parsed.href : null;
-    } catch {
-      return null;
-    }
-  }
 
     renderizarPerfil();
   }
@@ -1454,29 +1656,54 @@ function escaparHTML(valor) {
     const nome = perfilAtual?.nome_exibicao || 'Sem nome definido';
     const empresa = perfilAtual?.empresa || '—';
     const admissao = perfilAtual?.data_admissao ? formatarDataBR(perfilAtual.data_admissao) : '—';
-    const avatarUrl = perfilAtual?.avatar_url;
+    const avatarUrl = urlAvatarSegura(perfilAtual?.avatar_url);
+    const postoInfo = obterPostoInfo(perfilAtual?.posto);
 
     document.getElementById('perfil-nome-exibicao').innerText = nome;
     document.getElementById('perfil-empresa').innerText = `Empresa: ${empresa}`;
     document.getElementById('perfil-admissao').innerText = `Admissao: ${admissao}`;
     document.getElementById('perfil-escala-badge').innerText = `Escala ${diasTrab}x${diasFolg}`;
-    document.getElementById('header-subtitulo').innerText = `${empresa} · Escala ${diasTrab}x${diasFolg}`;
     document.getElementById('conta-email-atual').innerText = usuarioAtual?.email || '—';
 
+    const badgeEl = document.getElementById('perfil-posto-badge');
+    const detalheEl = document.getElementById('perfil-posto-detalhe');
     const avatarBox = document.getElementById('avatar-box');
-    if (avatarUrl) {
-      avatarBox.innerHTML = `<img src="${avatarUrl}" alt="Foto de perfil">`;
+
+    if (postoInfo) {
+      badgeEl.style.display = 'inline-flex';
+      badgeEl.className = postoInfo.comando ? 'posto-badge posto-comando' : 'posto-badge';
+      badgeEl.innerHTML = `<span class="posto-sigla">${escaparHTML(postoInfo.sigla)}</span> ${escaparHTML(postoInfo.titulo)}`;
+
+      detalheEl.style.display = 'block';
+      const notaTxt = postoInfo.nota ? ` · <em>${escaparHTML(postoInfo.nota)}</em>` : '';
+      detalheEl.innerHTML = `${escaparHTML(postoInfo.secao)} (${escaparHTML(postoInfo.foco)})${notaTxt}`;
+
+      avatarBox.className = postoInfo.comando ? 'avatar avatar-comando' : 'avatar';
+      document.getElementById('header-subtitulo').innerText =
+        `${postoInfo.sigla} · ${postoInfo.titulo} · ${empresa} · Escala ${diasTrab}x${diasFolg}`;
     } else {
-      const iniciais = nome
-        .split(' ')
-        .filter(Boolean)
-        .slice(0, 2)
-        .map(p => p[0].toUpperCase())
-        .join('') || 'DB';
+      badgeEl.style.display = 'none';
+      detalheEl.style.display = 'none';
+      avatarBox.className = 'avatar';
+      document.getElementById('header-subtitulo').innerText = `${empresa} · Escala ${diasTrab}x${diasFolg}`;
+    }
+
+    if (avatarUrl) {
+      avatarBox.innerHTML = `<img src="${escaparHTML(avatarUrl)}" alt="Foto de perfil">`;
+    } else {
+      const iniciais = postoInfo
+        ? postoInfo.sigla
+        : (nome
+            .split(' ')
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(p => p[0].toUpperCase())
+            .join('') || 'DB');
       avatarBox.innerText = iniciais;
     }
 
     document.getElementById('input-nome').value = perfilAtual?.nome_exibicao || '';
+    document.getElementById('select-posto').value = perfilAtual?.posto || '';
     document.getElementById('input-empresa').value = perfilAtual?.empresa || '';
     document.getElementById('input-admissao').value = perfilAtual?.data_admissao || '';
     document.getElementById('input-dias-trabalho').value = diasTrab;
@@ -1514,6 +1741,7 @@ function escaparHTML(valor) {
     btn.innerText = 'Salvando...';
 
     const nome_exibicao = document.getElementById('input-nome').value.trim();
+    const posto = document.getElementById('select-posto').value || null;
     const empresa = document.getElementById('input-empresa').value.trim();
     const data_admissao = document.getElementById('input-admissao').value || null;
     const dias_trabalho = Math.max(1, parseInt(document.getElementById('input-dias-trabalho').value, 10) || 10);
@@ -1548,6 +1776,7 @@ function escaparHTML(valor) {
       .from('perfis')
       .update({
         nome_exibicao,
+        posto,
         empresa,
         data_admissao,
         dias_trabalho,
@@ -1694,11 +1923,11 @@ function escaparHTML(valor) {
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td data-label="Tipo"><span class="${tagClass}">${item.tipo}</span></td>
+        <td data-label="Tipo"><span class="${tagClass}">${escaparHTML(item.tipo)}</span></td>
         <td data-label="Inicio">${formatarDataBR(item.data_inicio)}</td>
         <td data-label="Fim">${formatarDataBR(item.data_fim)}</td>
         <td data-label="Dias" class="num">${item.dias_totais}d</td>
-        <td data-label="Observacao">${item.observacao || '—'}</td>
+        <td data-label="Observacao">${escaparHTML(item.observacao || '—')}</td>
         <td>
           <div class="row-actions">
             <button class="btn-link" onclick="prepararEdicao(${item.id})">Editar</button>
@@ -1721,12 +1950,7 @@ function escaparHTML(valor) {
     saldoEl.style.color = saldo < 0 ? 'var(--negative)' : 'var(--positive)';
   }
 
-  /**
-   * Motor de previsao adaptativa:
-   * Le todos os registros reais, detecta a sequencia atual (se ele estendeu dias de trabalho
-   * ou se ainda faltam dias para fechar o ciclo) e projeta os proximos 180 dias.
-   */
-function gerarMapaCalendarioEPrevisao() {
+  function gerarMapaCalendarioEPrevisao() {
     const { diasTrab, diasFolg, proporcao } = obterRegraEscala();
     const mapaDias = {};
 
@@ -1764,7 +1988,6 @@ function gerarMapaCalendarioEPrevisao() {
     let diasRestantesNaFase = diasTrab;
 
     if (ultimoEstado === 'Folga') {
-      // Conta quantos dias de folga ele ja tirou nesse bloco atual
       let diasFolgaNoBloco = 0;
       const cursor = new Date(ultimaDataReal);
       while (true) {
@@ -1785,8 +2008,6 @@ function gerarMapaCalendarioEPrevisao() {
         diasRestantesNaFase = diasTrab;
       }
     } else {
-      // Conta os dias corridos desde o inicio deste turno atual (parando na ultima Folga real
-      // ou se houver um intervalo vazio maior que 1 dia sem registro)
       let diasNoTurnoAtual = 0;
       let diasTrabalhadosNoTurno = 0;
       const cursor = new Date(ultimaDataReal);
@@ -1804,11 +2025,9 @@ function gerarMapaCalendarioEPrevisao() {
       }
 
       if (diasNoTurnoAtual < diasTrab) {
-        // Ainda faltam dias para fechar os dias do ciclo atual (ex: 10 dias)
         faseAtual = 'PrevTrabalho';
         diasRestantesNaFase = diasTrab - diasNoTurnoAtual;
       } else {
-        // Ja fechou os 10 dias (ou estendeu embarque acima de 10 dias) -> entra na folga
         faseAtual = 'PrevFolga';
         diasRestantesNaFase = diasNoTurnoAtual <= diasTrab
           ? diasFolg
@@ -1816,7 +2035,6 @@ function gerarMapaCalendarioEPrevisao() {
       }
     }
 
-    // Projeta 180 dias para frente a partir do dia seguinte ao ultimo registro real
     const cursorFrente = new Date(ultimaDataReal);
     cursorFrente.setDate(cursorFrente.getDate() + 1);
 
@@ -1946,7 +2164,7 @@ function gerarMapaCalendarioEPrevisao() {
 
       celula.innerHTML = `
         <span class="cal-day-num">${dia}</span>
-        <span class="cal-day-label" title="${subtexto}">${subtexto}</span>
+        <span class="cal-day-label" title="${escaparHTML(subtexto)}">${escaparHTML(subtexto)}</span>
       `;
       grid.appendChild(celula);
     }
@@ -2061,12 +2279,11 @@ function gerarMapaCalendarioEPrevisao() {
     await carregarEscalas();
   }
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
-  });
-}
-
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+    });
+  }
 </script>
 
 </body>
