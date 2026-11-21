@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
-  <title>Diario de Bordo</title>
+  <title>Diário de Bordo</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -16,7 +16,6 @@
       --accent-hover: #2563eb;
       --positive: #4ade80;
       --negative: #f87171;
-      --gold: #fbbf24;
     }
 
     * {
@@ -27,7 +26,7 @@
     html, body { margin: 0; }
 
     body {
-      padding: 36px 20px;
+      padding: 36px 20px 110px;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -62,20 +61,6 @@
       position: relative;
       z-index: 2;
     }
-
-    .auth-waves {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 180px;
-      z-index: 1;
-      pointer-events: none;
-    }
-
-    /* =============================================
-       LOGIN
-       ============================================= */
 
     .auth-box {
       width: 100%;
@@ -186,10 +171,7 @@
       font-size: 0.92rem;
       color: #0f172a;
       font-family: inherit;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
     }
-
-    .auth-field input::placeholder { color: #94a3b8; }
 
     .auth-field input:focus {
       outline: none;
@@ -205,22 +187,11 @@
       border-radius: 9px;
       font-size: 0.95rem;
       font-weight: 600;
-      letter-spacing: 0.01em;
       color: #ffffff;
       cursor: pointer;
       background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-      box-shadow: 0 8px 20px -6px rgba(37, 99, 235, 0.5);
-      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
       font-family: inherit;
     }
-
-    .auth-submit:hover {
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-      transform: translateY(-1px);
-      box-shadow: 0 12px 24px -6px rgba(37, 99, 235, 0.55);
-    }
-
-    .auth-submit:active { transform: translateY(0); }
 
     .auth-links {
       text-align: right;
@@ -234,8 +205,6 @@
       font-weight: 500;
       cursor: pointer;
     }
-
-    .auth-links a:hover { text-decoration: underline; }
 
     .auth-msg {
       text-align: center;
@@ -251,10 +220,6 @@
       border: 1px solid #e2e8f0;
       border-radius: 8px;
     }
-
-    /* =============================================
-       TOP BAR
-       ============================================= */
 
     .top-bar {
       display: flex;
@@ -282,9 +247,6 @@
       align-items: center;
       justify-content: center;
       color: #ffffff;
-      box-shadow:
-        0 10px 22px -6px rgba(0, 0, 0, 0.6),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
       flex-shrink: 0;
     }
 
@@ -294,7 +256,6 @@
       margin: 0;
       font-size: 1.35rem;
       font-weight: 700;
-      letter-spacing: -0.025em;
       color: #f1f5f9;
     }
 
@@ -305,10 +266,6 @@
       margin-top: 2px;
     }
 
-    /* =============================================
-       CARDS
-       ============================================= */
-
     .block {
       background: linear-gradient(180deg, rgba(21, 40, 70, 0.72) 0%, rgba(12, 26, 50, 0.72) 100%);
       border: 1px solid rgba(120, 170, 230, 0.12);
@@ -316,23 +273,14 @@
       padding: 24px;
       margin-bottom: 22px;
       backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow:
-        0 20px 44px -20px rgba(0, 0, 0, 0.65),
-        inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
 
     .block-title {
       margin: 0 0 18px 0;
       font-size: 1rem;
       font-weight: 600;
-      letter-spacing: -0.01em;
       color: #f1f5f9;
     }
-
-    /* =============================================
-       PERFIL, PATENTES & CONFIGURAÇÃO DE ESCALA
-       ============================================= */
 
     .profile-header {
       display: flex;
@@ -353,23 +301,20 @@
       height: 72px;
       border-radius: 50%;
       border: 2px solid rgba(147, 197, 253, 0.35);
-      background: linear-gradient(145deg, rgba(30, 58, 138, 0.55), rgba(15, 23, 42, 0.85));
+      background: rgba(255, 255, 255, 0.06);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 1.25rem;
-      color: #e2e8f0;
+      font-size: 1.2rem;
+      color: #cbd5e1;
       overflow: hidden;
       flex-shrink: 0;
-      box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.65);
     }
 
     .avatar.avatar-comando {
-      border-color: rgba(251, 191, 36, 0.72);
-      box-shadow:
-        0 0 0 2px rgba(251, 191, 36, 0.16),
-        0 12px 26px -8px rgba(245, 158, 11, 0.35);
+      border-color: rgba(251, 191, 36, 0.75);
+      box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.18);
     }
 
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -387,7 +332,6 @@
       font-weight: 700;
       margin: 0;
       color: #f8fafc;
-      letter-spacing: -0.015em;
     }
 
     .posto-badge {
@@ -398,43 +342,21 @@
       border-radius: 999px;
       font-size: 0.78rem;
       font-weight: 700;
-      letter-spacing: 0.03em;
       background: linear-gradient(135deg, rgba(59, 130, 246, 0.24), rgba(30, 64, 175, 0.32));
       border: 1px solid rgba(147, 197, 253, 0.45);
       color: #bfdbfe;
-      box-shadow: 0 4px 14px -4px rgba(37, 99, 235, 0.45);
     }
 
     .posto-badge.posto-comando {
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.26), rgba(180, 83, 9, 0.34));
       border: 1px solid rgba(251, 191, 36, 0.72);
       color: #fde68a;
-      box-shadow: 0 6px 18px -4px rgba(245, 158, 11, 0.45);
-    }
-
-    .posto-badge .posto-sigla {
-      padding: 1px 6px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.14);
-      font-size: 0.72rem;
-      font-weight: 800;
-      color: #ffffff;
-    }
-
-    .posto-badge.posto-comando .posto-sigla {
-      background: rgba(251, 191, 36, 0.28);
-      color: #fef3c7;
     }
 
     .posto-subline {
       font-size: 0.82rem;
       color: #cbd5e1;
       margin-bottom: 6px;
-    }
-
-    .posto-subline em {
-      font-style: normal;
-      color: #94a3b8;
     }
 
     .profile-details {
@@ -446,10 +368,21 @@
       align-items: center;
     }
 
+    .embarcacao-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: rgba(129, 140, 248, 0.16);
+      border: 1px solid rgba(129, 140, 248, 0.38);
+      color: #c7d2fe;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
     .escala-pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
       padding: 2px 10px;
       border-radius: 999px;
       background: rgba(59, 130, 246, 0.16);
@@ -462,7 +395,16 @@
     .profile-buttons {
       display: flex;
       gap: 8px;
-      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn-icon {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .profile-form {
@@ -481,20 +423,7 @@
       gap: 10px;
     }
 
-    .form-msg {
-      font-size: 0.85rem;
-      color: #94a3b8;
-      grid-column: 1 / -1;
-    }
-
-    .form-msg:not(:empty) {
-      padding: 10px 14px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(120, 170, 230, 0.15);
-      border-radius: 8px;
-    }
-
-    .conta-atual {
+    .form-msg, .conta-atual {
       grid-column: 1 / -1;
       font-size: 0.85rem;
       color: #94a3b8;
@@ -502,29 +431,7 @@
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(120, 170, 230, 0.15);
       border-radius: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: baseline;
     }
-
-    .conta-atual .label {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #94a3b8;
-      font-weight: 500;
-    }
-
-    .conta-atual strong {
-      color: #f1f5f9;
-      font-weight: 600;
-      word-break: break-all;
-    }
-
-    /* =============================================
-       MÉTRICAS
-       ============================================= */
 
     .metrics {
       display: grid;
@@ -534,48 +441,14 @@
       border-radius: 14px;
       margin-bottom: 22px;
       overflow: hidden;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow:
-        0 20px 44px -20px rgba(0, 0, 0, 0.65),
-        inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
 
-    .metric {
-      padding: 18px 22px;
-      border-right: 1px solid rgba(120, 170, 230, 0.1);
-    }
-
+    .metric { padding: 18px 22px; border-right: 1px solid rgba(120, 170, 230, 0.1); }
     .metric:last-child { border-right: none; }
+    .metric-label { font-size: 0.72rem; text-transform: uppercase; color: #94a3b8; margin-bottom: 6px; }
+    .metric-value { font-size: 1.6rem; font-weight: 700; color: #f1f5f9; }
 
-    .metric-label {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #94a3b8;
-      margin-bottom: 6px;
-      font-weight: 500;
-    }
-
-    .metric-value {
-      font-size: 1.6rem;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-      color: #f1f5f9;
-      letter-spacing: -0.02em;
-    }
-
-    .metric-sub {
-      font-size: 0.74rem;
-      color: #94a3b8;
-      margin-top: 4px;
-    }
-
-    /* =============================================
-       CALENDÁRIO + PREVISÃO
-       ============================================= */
-
-    .cal-header {
+    .cal-header, .history-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -584,70 +457,68 @@
       margin-bottom: 14px;
     }
 
-    .cal-header .block-title { margin: 0; }
-
-    .cal-nav {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .cal-month-title {
-      font-weight: 600;
-      min-width: 160px;
-      text-align: center;
-      text-transform: capitalize;
-      color: #f1f5f9;
-      font-size: 0.9rem;
-    }
+    .cal-nav { display: flex; align-items: center; gap: 10px; }
+    .cal-month-title { font-weight: 600; min-width: 160px; text-align: center; text-transform: capitalize; }
 
     .forecast-banner {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 10px;
-      padding: 12px 16px;
+      padding: 14px 16px;
       margin-bottom: 16px;
       border-radius: 10px;
       background: rgba(59, 130, 246, 0.1);
       border: 1px solid rgba(59, 130, 246, 0.24);
       font-size: 0.85rem;
-      color: #cbd5e1;
     }
 
-    .forecast-banner strong {
-      color: #f1f5f9;
+    .forecast-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
     }
 
-    .cal-legend {
+    .forecast-box {
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.45);
+      border: 1px solid rgba(120, 170, 230, 0.16);
       display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      font-size: 0.78rem;
-      color: #94a3b8;
-      margin-bottom: 14px;
-    }
-
-    .legend-item {
-      display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 6px;
+      gap: 10px;
     }
 
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 3px;
-      display: inline-block;
+    .forecast-box strong { color: #f8fafc; }
+
+    .countdown-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      background: rgba(74, 222, 128, 0.16);
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      color: #86efac;
+      white-space: nowrap;
     }
 
-    .dot-porto { background: rgba(129, 140, 248, 0.5); border: 1px solid rgba(129, 140, 248, 0.85); }
-    .dot-embarque { background: rgba(96, 165, 250, 0.5); border: 1px solid rgba(96, 165, 250, 0.85); }
-    .dot-folga { background: rgba(74, 222, 128, 0.45); border: 1px solid rgba(74, 222, 128, 0.8); }
-    .dot-atestado { background: rgba(250, 204, 21, 0.45); border: 1px solid rgba(250, 204, 21, 0.8); }
-    .dot-prev-trab { background: rgba(96, 165, 250, 0.16); border: 1px dashed rgba(147, 197, 253, 0.8); }
-    .dot-prev-folga { background: rgba(74, 222, 128, 0.14); border: 1px dashed rgba(134, 239, 172, 0.8); }
+    .countdown-pill.retorno {
+      background: rgba(96, 165, 250, 0.18);
+      border-color: rgba(96, 165, 250, 0.4);
+      color: #93c5fd;
+    }
+
+    .cal-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.78rem; color: #94a3b8; margin-bottom: 14px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+    .dot-porto { background: rgba(129, 140, 248, 0.5); }
+    .dot-embarque { background: rgba(96, 165, 250, 0.5); }
+    .dot-folga { background: rgba(74, 222, 128, 0.45); }
+    .dot-atestado { background: rgba(250, 204, 21, 0.45); }
+    .dot-prev-trab { border: 1px dashed rgba(147, 197, 253, 0.8); }
+    .dot-prev-folga { border: 1px dashed rgba(134, 239, 172, 0.8); }
 
     .cal-grid {
       display: grid;
@@ -667,8 +538,6 @@
       background: rgba(255, 255, 255, 0.04);
       border-right: 1px solid rgba(120, 170, 230, 0.1);
       border-bottom: 1px solid rgba(120, 170, 230, 0.1);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
     }
 
     .cal-day {
@@ -676,140 +545,42 @@
       padding: 7px 9px;
       border-right: 1px solid rgba(120, 170, 230, 0.08);
       border-bottom: 1px solid rgba(120, 170, 230, 0.08);
-      font-size: 0.85rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      background: rgba(255, 255, 255, 0.015);
       gap: 4px;
-      position: relative;
     }
 
-    .cal-day.empty { background: transparent; }
     .cal-day.is-porto { background: rgba(129, 140, 248, 0.16); }
     .cal-day.is-embarque { background: rgba(96, 165, 250, 0.16); }
     .cal-day.is-folga { background: rgba(74, 222, 128, 0.13); }
     .cal-day.is-atestado { background: rgba(250, 204, 21, 0.12); }
+    .cal-day.is-prev-trabalho { background: rgba(96, 165, 250, 0.08); }
+    .cal-day.is-prev-folga { background: rgba(74, 222, 128, 0.07); }
+    .cal-day-num { font-weight: 600; color: #f1f5f9; }
+    .cal-day-label { font-size: 0.67rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .cal-day.is-prev-trabalho {
-      background: repeating-linear-gradient(
-        -45deg,
-        rgba(96, 165, 250, 0.05),
-        rgba(96, 165, 250, 0.05) 6px,
-        rgba(96, 165, 250, 0.11) 6px,
-        rgba(96, 165, 250, 0.11) 12px
-      );
-      box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.28);
-    }
+    .field label { display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 7px; font-weight: 500; }
 
-    .cal-day.is-prev-folga {
-      background: repeating-linear-gradient(
-        -45deg,
-        rgba(74, 222, 128, 0.04),
-        rgba(74, 222, 128, 0.04) 6px,
-        rgba(74, 222, 128, 0.1) 6px,
-        rgba(74, 222, 128, 0.1) 12px
-      );
-      box-shadow: inset 0 0 0 1px rgba(134, 239, 172, 0.28);
-    }
-
-    .cal-day-num {
-      font-weight: 600;
-      font-variant-numeric: tabular-nums;
-      color: #f1f5f9;
-    }
-
-    .cal-day.today .cal-day-num {
-      color: #93c5fd;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-
-    .cal-day-label {
-      font-size: 0.67rem;
-      color: #94a3b8;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .cal-day.is-prev-trabalho .cal-day-label { color: #93c5fd; font-style: italic; }
-    .cal-day.is-prev-folga .cal-day-label { color: #86efac; font-style: italic; }
-
-    /* =============================================
-       FORMULÁRIO E TABELA
-       ============================================= */
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 140px 150px 150px 1fr auto;
-      gap: 14px;
-      align-items: end;
-    }
-
-    .field label {
-      display: block;
-      font-size: 0.78rem;
-      color: #94a3b8;
-      margin-bottom: 7px;
-      font-weight: 500;
-    }
-
-    .field input,
-    .field select {
+    .field input, .field select {
       width: 100%;
-      height: 40px;
+      height: 42px;
       padding: 0 12px;
-      border: 1px solid rgba(120, 170, 230, 0.16);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(120, 170, 230, 0.2);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
       color: #f1f5f9;
-      font-size: 0.9rem;
-      font-family: inherit;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+      font-size: 0.92rem;
     }
 
-    .field input::placeholder { color: #64748b; }
-
-    .field input[type="file"] {
-      height: auto;
-      padding: 8px 12px;
-      font-size: 0.82rem;
-    }
-
-    .field input[type="date"]::-webkit-calendar-picker-indicator,
-    .field input[type="date"]::-webkit-inner-spin-button {
-      filter: invert(0.7);
-      cursor: pointer;
-    }
-
-    .field select {
-      appearance: none;
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      padding-right: 32px;
-    }
-
-    .field select option,
-    .field select optgroup {
-      background: #0d1e35;
-      color: #f1f5f9;
-    }
-
-    .field select optgroup {
-      color: #93c5fd;
-      font-weight: 600;
-    }
-
-    .field input:focus,
-    .field select:focus {
+    .field input:focus, .field select:focus {
       outline: none;
       border-color: #3b82f6;
-      background: rgba(255, 255, 255, 0.06);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
     }
 
+    .field select option, .field select optgroup { background: #0d1e35; color: #f1f5f9; }
     .actions { display: flex; gap: 8px; }
 
     button {
@@ -820,357 +591,295 @@
       font-size: 0.875rem;
       font-weight: 500;
       cursor: pointer;
-      font-family: inherit;
-      transition: background-color 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
     }
 
     .btn-primary {
       background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-      color: #ffffff;
-      box-shadow: 0 8px 20px -8px rgba(37, 99, 235, 0.6);
+      color: #fff;
+      box-shadow: 0 8px 20px -6px rgba(37, 99, 235, 0.55);
     }
-
     .btn-primary:hover {
       background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-      box-shadow: 0 10px 24px -8px rgba(37, 99, 235, 0.7);
-      transform: translateY(-1px);
+    }
+    .btn-secondary { background: rgba(255, 255, 255, 0.04); color: #cbd5e1; border-color: rgba(120, 170, 230, 0.16); }
+    .btn-danger { background: rgba(248, 113, 113, 0.14); color: #fca5a5; border-color: rgba(248, 113, 113, 0.3); }
+
+    .fab-add {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 40;
+      height: 54px;
+      padding: 0 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(147, 197, 253, 0.35);
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow:
+        0 14px 32px -6px rgba(37, 99, 235, 0.65),
+        0 6px 14px -4px rgba(0, 0, 0, 0.5);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
 
-    .btn-primary:active { transform: translateY(0); }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.04);
-      color: #cbd5e1;
-      border-color: rgba(120, 170, 230, 0.16);
+    .fab-add:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 18px 38px -6px rgba(59, 130, 246, 0.75),
+        0 8px 18px -4px rgba(0, 0, 0, 0.55);
     }
 
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #f1f5f9;
-      border-color: rgba(120, 170, 230, 0.28);
+    .fab-add:active { transform: translateY(0); }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(3, 10, 24, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
     }
 
-    .btn-danger {
-      background: rgba(248, 113, 113, 0.14);
-      color: #fca5a5;
-      border-color: rgba(248, 113, 113, 0.3);
+    .modal-backdrop.is-open {
+      display: flex;
     }
 
-    .btn-danger:hover {
-      background: rgba(248, 113, 113, 0.22);
-      color: #fecaca;
-      border-color: rgba(248, 113, 113, 0.5);
+    .modal-card {
+      width: 100%;
+      max-width: 480px;
+      background: linear-gradient(180deg, #122645 0%, #0b1930 100%);
+      border: 1px solid rgba(147, 197, 253, 0.24);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 28px 70px -12px rgba(0, 0, 0, 0.85);
+      animation: modalFadeIn 0.2s ease-out;
     }
 
-    .history-header {
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(14px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
       margin-bottom: 18px;
     }
 
-    .history-header .block-title { margin: 0; }
+    .modal-title {
+      margin: 0;
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .modal-close {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      color: #94a3b8;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #f8fafc;
+    }
+
+    .tipo-chips {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tipo-chip {
+      height: 40px;
+      padding: 0 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(120, 170, 230, 0.2);
+      background: rgba(255, 255, 255, 0.04);
+      color: #cbd5e1;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .tipo-chip.active[data-tipo="Porto"] {
+      background: rgba(129, 140, 248, 0.24);
+      border-color: #818cf8;
+      color: #e0e7ff;
+    }
+
+    .tipo-chip.active[data-tipo="Embarque"] {
+      background: rgba(59, 130, 246, 0.28);
+      border-color: #60a5fa;
+      color: #dbeafe;
+    }
+
+    .tipo-chip.active[data-tipo="Folga"] {
+      background: rgba(74, 222, 128, 0.22);
+      border-color: #4ade80;
+      color: #dcfce7;
+    }
+
+    .tipo-chip.active[data-tipo="Atestado"] {
+      background: rgba(250, 204, 21, 0.22);
+      border-color: #facc15;
+      color: #fef9c3;
+    }
+
+    .modal-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modal-dates {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .modal-footer button {
+      flex: 1;
+      height: 44px;
+      font-weight: 600;
+    }
 
     .table-wrap { overflow-x: auto; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-    }
-
-    th {
-      text-align: left;
-      font-size: 0.72rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #94a3b8;
-      padding: 12px;
-      border-bottom: 1px solid rgba(120, 170, 230, 0.14);
-    }
-
-    td {
-      padding: 14px 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      vertical-align: middle;
-      color: #e2e8f0;
-    }
-
-    tr:last-child td { border-bottom: none; }
-
-    .num {
-      font-variant-numeric: tabular-nums;
-      font-weight: 600;
-      color: #f1f5f9;
-    }
-
-    .tag {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 5px;
-      font-size: 0.74rem;
-      font-weight: 500;
-      border: 1px solid rgba(120, 170, 230, 0.2);
-      background: rgba(255, 255, 255, 0.06);
-      color: #cbd5e1;
-    }
-
-    .tag-embarque {
-      background: rgba(96, 165, 250, 0.16);
-      border-color: rgba(96, 165, 250, 0.35);
-      color: #93c5fd;
-    }
-
-    .tag-folga {
-      background: rgba(74, 222, 128, 0.14);
-      border-color: rgba(74, 222, 128, 0.32);
-      color: #86efac;
-    }
-
-    .tag-atestado {
-      background: rgba(250, 204, 21, 0.14);
-      border-color: rgba(250, 204, 21, 0.32);
-      color: #fde047;
-    }
-
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th { text-align: left; font-size: 0.72rem; text-transform: uppercase; color: #94a3b8; padding: 12px; border-bottom: 1px solid rgba(120, 170, 230, 0.14); }
+    td { padding: 14px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+    .tag { display: inline-block; padding: 3px 10px; border-radius: 5px; font-size: 0.74rem; background: rgba(255, 255, 255, 0.06); }
     .row-actions { display: flex; gap: 4px; }
+    .btn-link { height: auto; padding: 5px 9px; background: transparent; color: #94a3b8; font-size: 0.8rem; }
+    .btn-link.danger:hover { color: #f87171; }
 
-    .btn-link {
-      height: auto;
-      padding: 5px 9px;
-      background: transparent;
-      color: #94a3b8;
-      font-size: 0.8rem;
-      border: none;
-      border-radius: 6px;
-    }
-
-    .btn-link:hover {
-      background: rgba(255, 255, 255, 0.06);
-      color: #f1f5f9;
-    }
-
-    .btn-link.danger:hover {
-      background: rgba(248, 113, 113, 0.12);
-      color: #f87171;
-    }
-
-    /* =============================================
-       MOBILE
-       ============================================= */
     @media (max-width: 760px) {
-      body { padding: 20px 14px 100px; }
-
-      .auth-box { padding: 32px 24px 28px; }
-      .auth-title { font-size: 1.35rem; }
-      .auth-waves { height: 110px; opacity: 0.85; }
-
+      body { padding: 20px 14px 110px; }
       .block { padding: 18px; border-radius: 12px; }
-
-      .top-bar { gap: 12px; }
-      .top-bar h1 { font-size: 1.2rem; }
-      .brand-badge { width: 40px; height: 40px; border-radius: 11px; }
-
-      .metrics {
-        grid-template-columns: repeat(2, 1fr);
-        border-radius: 12px;
-      }
-      .metric {
-        padding: 14px 16px;
-        border-bottom: 1px solid rgba(120, 170, 230, 0.1);
-      }
-      .metric:nth-child(odd) { border-right: 1px solid rgba(120, 170, 230, 0.1); }
-      .metric:nth-child(even) { border-right: none; }
-      .metric:nth-last-child(-n+2) { border-bottom: none; }
-      .metric-value { font-size: 1.35rem; }
-
-      .profile-header { align-items: flex-start; }
-      .profile-buttons { width: 100%; }
-      .profile-buttons button { flex: 1; }
-      .avatar { width: 58px; height: 58px; font-size: 1.05rem; }
-      .profile-name { font-size: 1.05rem; }
-      .profile-details { font-size: 0.8rem; gap: 6px; flex-direction: column; align-items: flex-start; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .forecast-grid { grid-template-columns: 1fr; }
       .profile-form { grid-template-columns: 1fr; }
 
-      .cal-header { gap: 10px; }
-      .cal-nav { width: 100%; gap: 6px; justify-content: space-between; }
-      .cal-nav button { height: 36px; padding: 0 12px; font-size: 0.8rem; }
-      .cal-month-title { min-width: 0; flex: 1; font-size: 0.85rem; }
-      .cal-legend { gap: 10px; font-size: 0.74rem; }
-      .cal-dow { padding: 7px 4px; font-size: 0.65rem; }
-      .cal-day { min-height: 54px; padding: 5px; }
-      .cal-day-num { font-size: 0.8rem; }
-      .cal-day-label { display: none; }
-      .cal-day.is-porto::after,
-      .cal-day.is-embarque::after,
-      .cal-day.is-folga::after,
-      .cal-day.is-atestado::after,
-      .cal-day.is-prev-trabalho::after,
-      .cal-day.is-prev-folga::after {
-        content: '';
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        align-self: flex-start;
+      .profile-buttons .btn-icon {
+        flex: 0 0 40px;
+        width: 40px;
       }
-      .cal-day.is-porto::after { background: #818cf8; }
-      .cal-day.is-embarque::after { background: #60a5fa; }
-      .cal-day.is-folga::after { background: #4ade80; }
-      .cal-day.is-atestado::after { background: #facc15; }
-      .cal-day.is-prev-trabalho::after { border: 1.5px solid #93c5fd; background: transparent; }
-      .cal-day.is-prev-folga::after { border: 1.5px solid #86efac; background: transparent; }
 
-      .form-row { grid-template-columns: 1fr 1fr; gap: 12px; }
-      .form-row > div.field:first-of-type,
-      .form-row .field-obs,
-      .form-row .actions { grid-column: 1 / -1; }
-      .actions { flex-direction: column; }
-      .actions button { width: 100%; }
+      .fab-add {
+        right: 16px;
+        bottom: 18px;
+        height: 52px;
+        padding: 0 20px;
+      }
 
-      .history-header { gap: 10px; }
+      .modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+      }
+
+      .modal-card {
+        max-width: 100%;
+        border-radius: 22px 22px 0 0;
+        padding: 22px 18px 28px;
+        border-bottom: none;
+      }
+
+      .modal-dates {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-dates .field {
+        min-width: 0;
+      }
+
+      .modal-dates input[type="date"] {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        -webkit-appearance: none;
+        appearance: none;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        text-align: left;
+        border: 1px solid rgba(120, 170, 230, 0.22);
+        border-radius: 10px;
+        padding: 0 12px;
+        height: 44px;
+        background: rgba(255, 255, 255, 0.05);
+        color: #f1f5f9;
+      }
+
       .history-header .btn-danger { width: 100%; }
 
       .table-wrap { overflow-x: visible; }
-      table, thead, tbody, th, td, tr { display: block; }
-      thead { display: none; }
-      tbody tr {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(120, 170, 230, 0.12);
+      .table-wrap table,
+      .table-wrap thead,
+      .table-wrap tbody,
+      .table-wrap tr,
+      .table-wrap th,
+      .table-wrap td {
+        display: block;
+        width: 100%;
+      }
+      .table-wrap thead { display: none; }
+      .table-wrap tbody tr {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(120, 170, 230, 0.14);
         border-radius: 10px;
         padding: 12px 14px;
         margin-bottom: 10px;
       }
-      tbody tr:last-child { margin-bottom: 0; }
-      tbody td {
-        border: none;
-        padding: 5px 0;
+      .table-wrap tbody td {
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 12px;
-        font-size: 0.85rem;
+        padding: 6px 0;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
-      tbody td::before {
-        content: attr(data-label);
-        color: #94a3b8;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-weight: 500;
-        flex-shrink: 0;
-      }
-      tbody td:last-child {
+      .table-wrap tbody td:last-child {
+        border-bottom: none;
         justify-content: flex-end;
         padding-top: 10px;
-        margin-top: 4px;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
       }
-      tbody td:last-child::before { content: none; }
-      tbody td[colspan] {
-        justify-content: center;
-        border-top: none;
-        margin-top: 0;
-        padding-top: 4px;
-      }
-      tbody td[colspan]::before { content: none; }
     }
-
-@media (max-width: 760px) {
-  #escala-form.form-row {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  #escala-form .field,
-  #escala-form .actions,
-  #escala-form .actions button {
-    width: 100%;
-  }
-
-  .table-wrap {
-    overflow-x: visible;
-  }
-
-  .table-wrap table,
-  .table-wrap thead,
-  .table-wrap tbody,
-  .table-wrap tr,
-  .table-wrap th,
-  .table-wrap td {
-    display: block;
-    width: 100%;
-  }
-
-  .table-wrap thead {
-    display: none;
-  }
-
-  .table-wrap tbody tr {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(120, 170, 230, 0.14);
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-  }
-
-  .table-wrap tbody td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 6px 0;
-    border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  .table-wrap tbody td:last-child {
-    border-bottom: none;
-    justify-content: flex-end;
-    padding-top: 10px;
-  }
-}
-
-#escala-form .field {
-    min-width: 0;
-  }
-
-  #escala-form input[type="date"] {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    -webkit-appearance: none;
-    appearance: none;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    text-align: left;
-    border: 1px solid rgba(120, 170, 230, 0.22);
-    border-radius: 8px;
-    padding: 0 12px;
-    height: 42px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #f1f5f9;
-  }
-}
   </style>
 </head>
 <body>
 
 <div class="page">
-  <!-- Tela de Login / Cadastro -->
   <section id="auth-view" class="auth-box">
     <div class="auth-logo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="4.5" r="2"/>
         <line x1="12" y1="6.5" x2="12" y2="21"/>
         <line x1="7" y1="10" x2="17" y2="10"/>
         <path d="M4 14c0 4 3.6 7 8 7s8-3 8-7"/>
-        <line x1="2" y1="14" x2="4" y2="14"/>
-        <line x1="20" y1="14" x2="22" y2="14"/>
       </svg>
     </div>
 
@@ -1199,23 +908,20 @@
     <div id="auth-msg" class="auth-msg"></div>
   </section>
 
-  <!-- Sistema Principal (visivel apos login) -->
   <div id="app-view" style="display: none;">
     <header class="top-bar">
       <div class="top-bar-brand">
         <div class="brand-badge">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="4.5" r="2"/>
             <line x1="12" y1="6.5" x2="12" y2="21"/>
             <line x1="7" y1="10" x2="17" y2="10"/>
             <path d="M4 14c0 4 3.6 7 8 7s8-3 8-7"/>
-            <line x1="2" y1="14" x2="4" y2="14"/>
-            <line x1="20" y1="14" x2="22" y2="14"/>
           </svg>
         </div>
         <div>
           <h1>Diario de Bordo</h1>
-          <span class="meta" id="header-subtitulo">Base 10x5</span>
+          <span class="meta">Controle de Embarque e Folgas</span>
         </div>
       </div>
       <button type="button" class="btn-secondary" onclick="sairConta()">Sair</button>
@@ -1233,14 +939,38 @@
             <div class="posto-subline" id="perfil-posto-detalhe" style="display: none;"></div>
             <div class="profile-details">
               <span id="perfil-empresa">Empresa: —</span>
-              <span id="perfil-admissao">Admissao: —</span>
+              <span class="embarcacao-pill" id="perfil-embarcacao-badge" style="display: none;"></span>
+              <span id="perfil-admissao">Admissão: —</span>
               <span class="escala-pill" id="perfil-escala-badge">Escala 10x5</span>
             </div>
           </div>
         </div>
         <div class="profile-buttons">
-          <button type="button" class="btn-secondary" onclick="alternarEditorPerfil()">Editar perfil e escala</button>
-          <button type="button" class="btn-secondary" onclick="alternarEditorConta()">Alterar conta</button>
+          <button
+            type="button"
+            class="btn-secondary btn-icon"
+            onclick="alternarEditorPerfil()"
+            title="Editar perfil e escala"
+            aria-label="Editar perfil e escala"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            class="btn-secondary btn-icon"
+            onclick="alternarEditorConta()"
+            title="Alterar conta"
+            aria-label="Alterar conta"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -1250,7 +980,7 @@
           <input type="text" id="input-nome" placeholder="Como quer aparecer">
         </div>
         <div class="field">
-          <label for="select-posto">Patente / Função a bordo</label>
+          <label for="select-posto">Patente / Função</label>
           <select id="select-posto">
             <option value="">Sem patente definida</option>
             <optgroup label="Seção de Convés (Comando e Manobra)">
@@ -1259,13 +989,13 @@
               <option value="MFL">MFL — Mestre Fluvial</option>
               <option value="CMF">CMF — Contramestre Fluvial</option>
               <option value="MFC">MFC — Marinheiro Fluvial de Convés</option>
-              <option value="MAM">MAM — Marinheiro Auxiliar de Convés</option>
+              <option value="MAC">MAC — Marinheiro Auxiliar de Convés</option>
             </optgroup>
             <optgroup label="Seção de Máquinas (Motores e Propulsão)">
               <option value="SUF">SUF — Supervisor Maquinista-Motorista Fluvial (chefe de máquinas)</option>
               <option value="CTF">CTF — Condutor Maquinista-Motorista Fluvial</option>
               <option value="MFM">MFM — Marinheiro Fluvial de Máquinas</option>
-              <option value="MMA">MMA — Marinheiro Auxiliar de Máquinas</option>
+              <option value="MAM">MAM — Marinheiro Auxiliar de Máquinas</option>
             </optgroup>
             <optgroup label="Seção de Câmara (Alimentação e Apoio)">
               <option value="CZA">CZA — Cozinheiro</option>
@@ -1274,23 +1004,16 @@
           </select>
         </div>
         <div class="field">
+          <label for="input-embarcacao">Embarcação / Comboio</label>
+          <input type="text" id="input-embarcacao" placeholder="Ex: Empurrador Rio Negro / Balsa">
+        </div>
+        <div class="field">
           <label for="input-empresa">Empresa</label>
           <input type="text" id="input-empresa" placeholder="Ex: Atem">
         </div>
         <div class="field">
           <label for="input-admissao">Data de admissao</label>
           <input type="date" id="input-admissao">
-        </div>
-        <div class="field">
-          <label for="select-escala-preset">Modelo de escala</label>
-          <select id="select-escala-preset" onchange="aplicarPresetEscala()">
-            <option value="10x5">10 por 5 (10 trab / 5 folga)</option>
-            <option value="30x15">30 por 15 (30 trab / 15 folga)</option>
-            <option value="30x10">30 por 10 (30 trab / 10 folga)</option>
-            <option value="20x10">20 por 10 (20 trab / 10 folga)</option>
-            <option value="15x15">15 por 15 (15 trab / 15 folga)</option>
-            <option value="custom">Personalizada...</option>
-          </select>
         </div>
         <div class="escala-custom-group">
           <div class="field">
@@ -1318,15 +1041,15 @@
         </div>
         <div class="field">
           <label for="input-novo-email">Novo e-mail</label>
-          <input type="email" id="input-novo-email" placeholder="Deixe vazio para nao alterar" autocomplete="email">
+          <input type="email" id="input-novo-email" placeholder="Deixe vazio para nao alterar">
         </div>
         <div class="field">
           <label for="input-nova-senha">Nova senha</label>
-          <input type="password" id="input-nova-senha" placeholder="Deixe vazio para nao alterar" minlength="6" autocomplete="new-password">
+          <input type="password" id="input-nova-senha" placeholder="Deixe vazio para nao alterar" minlength="6">
         </div>
         <div class="field">
           <label for="input-confirma-senha">Confirmar nova senha</label>
-          <input type="password" id="input-confirma-senha" placeholder="Repita a nova senha" autocomplete="new-password">
+          <input type="password" id="input-confirma-senha" placeholder="Repita a nova senha">
         </div>
         <div class="actions">
           <button type="submit" class="btn-primary" id="btn-salvar-conta">Salvar</button>
@@ -1337,37 +1060,35 @@
 
     <section class="metrics">
       <div class="metric">
-        <div class="metric-label">Dias trabalhados</div>
+        <div class="metric-label">Tempo de bordo</div>
         <div class="metric-value" id="total-trabalhado">0d</div>
       </div>
       <div class="metric">
-        <div class="metric-label">Folgas geradas</div>
+        <div class="metric-label">Folgas acumuladas</div>
         <div class="metric-value" id="folgas-geradas">0d</div>
       </div>
       <div class="metric">
-        <div class="metric-label">Folgas gozadas</div>
+        <div class="metric-label">Folgas usufruídas</div>
         <div class="metric-value" id="folgas-gozadas">0d</div>
       </div>
       <div class="metric">
-        <div class="metric-label">Saldo atual</div>
+        <div class="metric-label">Saldo de folga</div>
         <div class="metric-value" id="saldo-folga">0d</div>
       </div>
     </section>
 
     <section class="block">
       <div class="cal-header">
-        <h2 class="block-title">Calendario e previsao</h2>
+        <h2 class="block-title" style="margin: 0;">Calendário e previsão</h2>
         <div class="cal-nav">
           <button type="button" class="btn-secondary" onclick="mudarMes(-1)">Anterior</button>
           <span class="cal-month-title" id="cal-titulo"></span>
-          <button type="button" class="btn-secondary" onclick="mudarMes(1)">Proximo</button>
+          <button type="button" class="btn-secondary" onclick="mudarMes(1)">Próximo</button>
         </div>
       </div>
-
       <div class="forecast-banner" id="forecast-banner">
-        <span>Registre um periodo abaixo para gerar a previsao automatica dos proximos dias.</span>
+        <span>Clique em "+ Novo registro" para lançar um período e gerar sua previsão automática.</span>
       </div>
-
       <div class="cal-legend">
         <span class="legend-item"><span class="dot dot-porto"></span> Porto</span>
         <span class="legend-item"><span class="dot dot-embarque"></span> Embarque</span>
@@ -1376,45 +1097,12 @@
         <span class="legend-item"><span class="dot dot-prev-trab"></span> Prev. trabalho</span>
         <span class="legend-item"><span class="dot dot-prev-folga"></span> Prev. folga</span>
       </div>
-
       <div class="cal-grid" id="cal-grid"></div>
     </section>
 
     <section class="block">
-      <h2 class="block-title" id="form-titulo">Novo registro</h2>
-      <form id="escala-form" class="form-row">
-        <input type="hidden" id="edit-id">
-        <div class="field">
-          <label for="tipo">Tipo</label>
-          <select id="tipo" required>
-            <option value="Porto">Porto</option>
-            <option value="Embarque">Embarque</option>
-            <option value="Folga">Folga</option>
-            <option value="Atestado">Atestado</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="data_inicio">Inicio</label>
-          <input type="date" id="data_inicio" required>
-        </div>
-        <div class="field">
-          <label for="data_fim">Fim</label>
-          <input type="date" id="data_fim" required>
-        </div>
-        <div class="field field-obs">
-          <label for="observacao">Observacao</label>
-          <input type="text" id="observacao" placeholder="Barcarena, porto, etc.">
-        </div>
-        <div class="actions">
-          <button type="submit" class="btn-primary" id="btn-salvar">Salvar</button>
-          <button type="button" class="btn-secondary" id="btn-cancelar" style="display:none;" onclick="cancelarEdicao()">Cancelar</button>
-        </div>
-      </form>
-    </section>
-
-    <section class="block">
       <div class="history-header">
-        <h2 class="block-title">Historico</h2>
+        <h2 class="block-title" style="margin: 0;">Historico</h2>
         <button type="button" class="btn-danger" onclick="limparTodosRegistros()">Limpar todos os registros</button>
       </div>
       <div class="table-wrap">
@@ -1425,7 +1113,7 @@
               <th>Inicio</th>
               <th>Fim</th>
               <th>Dias</th>
-              <th>Observacao</th>
+              <th>Observacão</th>
               <th></th>
             </tr>
           </thead>
@@ -1435,119 +1123,81 @@
         </table>
       </div>
     </section>
+
+    <button type="button" class="fab-add" onclick="abrirModalRegistro()">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      <span>Novo registro</span>
+    </button>
+
+    <div id="modal-registro" class="modal-backdrop" onclick="fecharModalRegistroPorFundo(event)">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="form-titulo">
+        <div class="modal-header">
+          <h2 class="modal-title" id="form-titulo">Novo registro</h2>
+          <button type="button" class="modal-close" onclick="fecharModalRegistro()" aria-label="Fechar">✕</button>
+        </div>
+
+        <form id="escala-form">
+          <input type="hidden" id="edit-id">
+          <input type="hidden" id="tipo" value="Porto">
+
+          <div class="field">
+            <label>Tipo de lançamento</label>
+            <div class="tipo-chips" id="tipo-chips">
+              <button type="button" class="tipo-chip active" data-tipo="Porto" onclick="selecionarTipoRegistro('Porto')">Porto</button>
+              <button type="button" class="tipo-chip" data-tipo="Embarque" onclick="selecionarTipoRegistro('Embarque')">Embarque</button>
+              <button type="button" class="tipo-chip" data-tipo="Folga" onclick="selecionarTipoRegistro('Folga')">Folga</button>
+              <button type="button" class="tipo-chip" data-tipo="Atestado" onclick="selecionarTipoRegistro('Atestado')">Atestado</button>
+            </div>
+          </div>
+
+          <div class="modal-grid">
+            <div class="modal-dates">
+              <div class="field">
+                <label for="data_inicio">Início</label>
+                <input type="date" id="data_inicio" required>
+              </div>
+              <div class="field">
+                <label for="data_fim">Fim</label>
+                <input type="date" id="data_fim" required>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="observacao">Observação / Embarcação / Porto</label>
+              <input type="text" id="observacao" placeholder="Barcarena, comboio, etc.">
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="fecharModalRegistro()">Cancelar</button>
+            <button type="submit" class="btn-primary" id="btn-salvar">Salvar registro</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- Ondas decorativas fixas -->
-<svg class="auth-waves" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
-  <path d="M0,224 C240,160 480,288 720,224 C960,160 1200,288 1440,224 L1440,320 L0,320 Z" fill="rgba(37, 99, 235, 0.14)"/>
-  <path d="M0,256 C240,192 480,320 720,256 C960,192 1200,320 1440,256 L1440,320 L0,320 Z" fill="rgba(12, 30, 63, 0.4)"/>
-</svg>
-
 <script>
-  // =========================================================
-  // COLE SUAS CHAVES DO SUPABASE NAS DUAS LINHAS ABAIXO
-  // =========================================================
   const SUPABASE_URL = 'https://lnnsabfptrihvqxjsjet.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_JccD6GwRfiieTSCoqlJt9A_jrn--ykd';
 
   const PATENTES_BORDO = {
-    CFL: {
-      sigla: 'CFL',
-      titulo: 'Capitão Fluvial',
-      secao: 'Seção de Convés',
-      foco: 'Comando e Manobra',
-      nota: 'posto máximo no comando dos comboios',
-      comando: true
-    },
-    PLF: {
-      sigla: 'PLF',
-      titulo: 'Piloto Fluvial',
-      secao: 'Seção de Convés',
-      foco: 'Comando e Manobra',
-      nota: '',
-      comando: true
-    },
-    MFL: {
-      sigla: 'MFL',
-      titulo: 'Mestre Fluvial',
-      secao: 'Seção de Convés',
-      foco: 'Comando e Manobra',
-      nota: '',
-      comando: true
-    },
-    CMF: {
-      sigla: 'CMF',
-      titulo: 'Contramestre Fluvial',
-      secao: 'Seção de Convés',
-      foco: 'Comando e Manobra',
-      nota: '',
-      comando: false
-    },
-    MFC: {
-      sigla: 'MFC',
-      titulo: 'Marinheiro Fluvial de Convés',
-      secao: 'Seção de Convés',
-      foco: 'Comando e Manobra',
-      nota: '',
-      comando: false
-    },
-    MAF: {
-      sigla: 'MAM',
-      titulo: 'Marinheiro Auxiliar de Convés',
-      secao: 'Seção de Convés',
-      foco: 'Comando e Manobra',
-      nota: '',
-      comando: false
-    },
-    SUF: {
-      sigla: 'SUF',
-      titulo: 'Supervisor Maquinista-Motorista Fluvial',
-      secao: 'Seção de Máquinas',
-      foco: 'Motores e Propulsão',
-      nota: 'chefe de máquinas da embarcação',
-      comando: true
-    },
-    CTF: {
-      sigla: 'CTF',
-      titulo: 'Condutor Maquinista-Motorista Fluvial',
-      secao: 'Seção de Máquinas',
-      foco: 'Motores e Propulsão',
-      nota: '',
-      comando: true
-    },
-    MFM: {
-      sigla: 'MFM',
-      titulo: 'Marinheiro Fluvial de Máquinas',
-      secao: 'Seção de Máquinas',
-      foco: 'Motores e Propulsão',
-      nota: '',
-      comando: false
-    },
-    MMA: {
-      sigla: 'MMA',
-      titulo: 'Marinheiro Auxiliar de Máquinas',
-      secao: 'Seção de Máquinas',
-      foco: 'Motores e Propulsão',
-      nota: '',
-      comando: false
-    },
-    CZA: {
-      sigla: 'CZA',
-      titulo: 'Cozinheiro',
-      secao: 'Seção de Câmara',
-      foco: 'Alimentação e Apoio',
-      nota: '',
-      comando: false
-    },
-    TAA: {
-      sigla: 'TAA',
-      titulo: 'Taifeiro',
-      secao: 'Seção de Câmara',
-      foco: 'Alimentação e Apoio',
-      nota: '',
-      comando: false
-    }
+    CFL: { sigla: 'CFL', titulo: 'Capitão Fluvial', secao: 'Seção de Convés', foco: 'Comando e Manobra', nota: 'posto máximo no comando dos comboios', comando: true },
+    PLF: { sigla: 'PLF', titulo: 'Piloto Fluvial', secao: 'Seção de Convés', foco: 'Comando e Manobra', nota: '', comando: true },
+    MFL: { sigla: 'MFL', titulo: 'Mestre Fluvial', secao: 'Seção de Convés', foco: 'Comando e Manobra', nota: '', comando: true },
+    CMF: { sigla: 'CMF', titulo: 'Contramestre Fluvial', secao: 'Seção de Convés', foco: 'Comando e Manobra', nota: '', comando: false },
+    MFC: { sigla: 'MFC', titulo: 'Marinheiro Fluvial de Convés', secao: 'Seção de Convés', foco: 'Comando e Manobra', nota: '', comando: false },
+    MAC: { sigla: 'MAC', titulo: 'Marinheiro Auxiliar de Convés', secao: 'Seção de Convés', foco: 'Comando e Manobra', nota: '', comando: false },
+    SUF: { sigla: 'SUF', titulo: 'Supervisor Maquinista-Motorista Fluvial', secao: 'Seção de Máquinas', foco: 'Motores e Propulsão', nota: 'chefe de máquinas da embarcação', comando: true },
+    CTF: { sigla: 'CTF', titulo: 'Condutor Maquinista-Motorista Fluvial', secao: 'Seção de Máquinas', foco: 'Motores e Propulsão', nota: '', comando: true },
+    MFM: { sigla: 'MFM', titulo: 'Marinheiro Fluvial de Máquinas', secao: 'Seção de Máquinas', foco: 'Motores e Propulsão', nota: '', comando: false },
+    MAM: { sigla: 'MAM', titulo: 'Marinheiro Auxiliar de Máquinas', secao: 'Seção de Máquinas', foco: 'Motores e Propulsão', nota: '', comando: false },
+    CZA: { sigla: 'CZA', titulo: 'Cozinheiro', secao: 'Seção de Câmara', foco: 'Alimentação e Apoio', nota: '', comando: false },
+    TAA: { sigla: 'TAA', titulo: 'Taifeiro', secao: 'Seção de Câmara', foco: 'Alimentação e Apoio', nota: '', comando: false }
   };
 
   let supabaseClient = null;
@@ -1558,10 +1208,7 @@
   let mesReferencia = new Date();
   mesReferencia.setDate(1);
 
-  if (!SUPABASE_URL.startsWith('http')) {
-    document.getElementById('auth-msg').innerText =
-      'Aviso: cole sua Project URL e sua Anon Key no final do arquivo index.html antes de entrar.';
-  } else {
+  if (typeof supabase !== 'undefined' && SUPABASE_URL.startsWith('http')) {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
       auth: {
         persistSession: true,
@@ -1571,27 +1218,18 @@
       }
     });
     iniciarAutenticacao();
+  } else {
+    document.getElementById('auth-msg').innerText = 'Não foi possível carregar o cliente do Supabase.';
   }
 
-  function obterRegraEscala() {
-    const diasTrab = Math.max(1, parseInt(perfilAtual?.dias_trabalho, 10) || 10);
-    const diasFolg = Math.max(1, parseInt(perfilAtual?.dias_folga, 10) || 5);
-    return { diasTrab, diasFolg, proporcao: diasFolg / diasTrab };
+  function escaparHTML(valor) {
+    return String(valor ?? '')
+      .split('&').join(String.fromCharCode(38, 97, 109, 112, 59))
+      .split('<').join(String.fromCharCode(38, 108, 116, 59))
+      .split('>').join(String.fromCharCode(38, 103, 116, 59))
+      .split('"').join(String.fromCharCode(38, 113, 117, 111, 116, 59))
+      .split("'").join(String.fromCharCode(38, 35, 51, 57, 59));
   }
-
-  function obterPostoInfo(codigoPosto) {
-    if (!codigoPosto) return null;
-    return PATENTES_BORDO[codigoPosto] || null;
-  }
-
-function escaparHTML(valor) {
-  return String(valor ?? '')
-    .split('&').join(String.fromCharCode(38, 97, 109, 112, 59))
-    .split('<').join(String.fromCharCode(38, 108, 116, 59))
-    .split('>').join(String.fromCharCode(38, 103, 116, 59))
-    .split('"').join(String.fromCharCode(38, 113, 117, 111, 116, 59))
-    .split("'").join(String.fromCharCode(38, 35, 51, 57, 59));
-}
 
   function urlAvatarSegura(url) {
     if (!url || typeof url !== 'string') return null;
@@ -1603,7 +1241,59 @@ function escaparHTML(valor) {
     }
   }
 
-  // --- AUTENTICACAO ---
+  function obterRegraEscala() {
+    const inputTrab = document.getElementById('input-dias-trabalho');
+    const inputFolg = document.getElementById('input-dias-folga');
+    const diasTrab = Math.max(1, parseInt(inputTrab?.value ?? perfilAtual?.dias_trabalho, 10) || 10);
+    const diasFolg = Math.max(1, parseInt(inputFolg?.value ?? perfilAtual?.dias_folga, 10) || 5);
+    return { diasTrab, diasFolg, proporcao: diasFolg / diasTrab };
+  }
+
+  function normalizarCodigoPosto(codigo) {
+    if (codigo === 'MMA') return 'MAM';
+    if (codigo === 'MAF') return 'MAC';
+    return codigo || '';
+  }
+
+  function obterPostoInfo(codigoPosto) {
+    const normalizado = normalizarCodigoPosto(codigoPosto);
+    if (!normalizado) return null;
+    return PATENTES_BORDO[normalizado] || null;
+  }
+
+  function formatarContagemDias(dias) {
+    if (dias === null || dias === undefined) return '';
+    if (dias <= 0) return 'Hoje';
+    if (dias === 1) return 'Falta 1 dia';
+    return `Faltam ${dias} dias`;
+  }
+
+  function selecionarTipoRegistro(tipo) {
+    document.getElementById('tipo').value = tipo;
+    document.querySelectorAll('#tipo-chips .tipo-chip').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tipo === tipo);
+    });
+  }
+
+  function abrirModalRegistro() {
+    cancelarEdicao();
+    const hojeISO = dataParaISO(new Date());
+    document.getElementById('data_inicio').value = hojeISO;
+    document.getElementById('data_fim').value = hojeISO;
+    document.getElementById('modal-registro').classList.add('is-open');
+  }
+
+  function fecharModalRegistro() {
+    document.getElementById('modal-registro').classList.remove('is-open');
+    cancelarEdicao();
+  }
+
+  function fecharModalRegistroPorFundo(event) {
+    if (event.target.id === 'modal-registro') {
+      fecharModalRegistro();
+    }
+  }
+
   function alternarModoAuth(novoModo) {
     modoAuth = novoModo;
     const isLogin = modoAuth === 'login';
@@ -1623,39 +1313,31 @@ function escaparHTML(valor) {
     msgEl.innerText = 'Processando...';
 
     if (modoAuth === 'login') {
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) msgEl.innerText = 'Erro ao entrar: ' + error.message;
-      else msgEl.innerText = '';
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        msgEl.innerText = 'Erro ao entrar: ' + error.message;
+      } else {
+        msgEl.innerText = '';
+        if (data?.session) await aplicarSessao(data.session);
+      }
     } else {
       const { error } = await supabaseClient.auth.signUp({ email, password });
-      if (error) {
-        msgEl.innerText = 'Erro ao cadastrar: ' + error.message;
-      } else {
-        msgEl.innerText = 'Conta criada. Se a confirmacao de e-mail estiver ativa no Supabase, verifique sua caixa de entrada.';
-      }
+      if (error) msgEl.innerText = 'Erro ao cadastrar: ' + error.message;
+      else msgEl.innerText = 'Conta criada. Verifique seu e-mail se a confirmação estiver ativa.';
     }
   });
 
   async function esqueciSenha(event) {
     if (event) event.preventDefault();
     if (!supabaseClient) return;
-
     const email = document.getElementById('auth-email').value.trim();
     const msgEl = document.getElementById('auth-msg');
-
     if (!email) {
-      msgEl.innerText = 'Digite seu e-mail no campo acima e clique em "Esqueci minha senha" novamente.';
+      msgEl.innerText = 'Digite seu e-mail no campo acima e clique novamente.';
       return;
     }
-
-    msgEl.innerText = 'Enviando...';
     const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
-
-    if (error) {
-      msgEl.innerText = 'Erro ao enviar: ' + error.message;
-    } else {
-      msgEl.innerText = 'Se esse e-mail estiver cadastrado, voce recebera um link para redefinir a senha.';
-    }
+    msgEl.innerText = error ? 'Erro ao enviar: ' + error.message : 'Link de redefinição enviado para o seu e-mail.';
   }
 
   async function sairConta() {
@@ -1682,26 +1364,9 @@ function escaparHTML(valor) {
     supabaseClient.auth.onAuthStateChange((_event, session) => {
       aplicarSessao(session);
     });
-
     supabaseClient.auth.getSession().then(({ data: { session } }) => {
       aplicarSessao(session);
     });
-  }
-
-  // --- PERFIL E ESCALA ---
-  function aplicarPresetEscala() {
-    const preset = document.getElementById('select-escala-preset').value;
-    if (preset === 'custom') return;
-    const [t, f] = preset.split('x').map(Number);
-    document.getElementById('input-dias-trabalho').value = t;
-    document.getElementById('input-dias-folga').value = f;
-  }
-
-  function sincronizarSelectPreset(t, f) {
-    const chave = `${t}x${f}`;
-    const select = document.getElementById('select-escala-preset');
-    const existe = Array.from(select.options).some(opt => opt.value === chave);
-    select.value = existe ? chave : 'custom';
   }
 
   async function carregarPerfil() {
@@ -1713,20 +1378,20 @@ function escaparHTML(valor) {
 
     if (error) {
       console.error('Erro ao carregar perfil:', error);
+      renderizarPerfil();
       return;
     }
 
     if (!data) {
       const { data: novoPerfil } = await supabaseClient
         .from('perfis')
-        .insert([{ id: usuarioAtual.id, nome_exibicao: '', posto: '', empresa: 'Atem', dias_trabalho: 10, dias_folga: 5 }])
+        .insert([{ id: usuarioAtual.id, nome_exibicao: '', empresa: 'Atem', dias_trabalho: 10, dias_folga: 5 }])
         .select()
-        .single();
-      perfilAtual = novoPerfil;
+        .maybeSingle();
+      perfilAtual = novoPerfil || { dias_trabalho: 10, dias_folga: 5 };
     } else {
       perfilAtual = data;
     }
-
     renderizarPerfil();
   }
 
@@ -1734,6 +1399,7 @@ function escaparHTML(valor) {
     const { diasTrab, diasFolg } = obterRegraEscala();
     const nome = perfilAtual?.nome_exibicao || 'Sem nome definido';
     const empresa = perfilAtual?.empresa || '—';
+    const embarcacao = (perfilAtual?.embarcacao || '').trim();
     const admissao = perfilAtual?.data_admissao ? formatarDataBR(perfilAtual.data_admissao) : '—';
     const avatarUrl = urlAvatarSegura(perfilAtual?.avatar_url);
     const postoInfo = obterPostoInfo(perfilAtual?.posto);
@@ -1744,6 +1410,14 @@ function escaparHTML(valor) {
     document.getElementById('perfil-escala-badge').innerText = `Escala ${diasTrab}x${diasFolg}`;
     document.getElementById('conta-email-atual').innerText = usuarioAtual?.email || '—';
 
+    const embBadge = document.getElementById('perfil-embarcacao-badge');
+    if (embarcacao) {
+      embBadge.style.display = 'inline-flex';
+      embBadge.innerText = `Bordo: ${embarcacao}`;
+    } else {
+      embBadge.style.display = 'none';
+    }
+
     const badgeEl = document.getElementById('perfil-posto-badge');
     const detalheEl = document.getElementById('perfil-posto-detalhe');
     const avatarBox = document.getElementById('avatar-box');
@@ -1751,43 +1425,39 @@ function escaparHTML(valor) {
     if (postoInfo) {
       badgeEl.style.display = 'inline-flex';
       badgeEl.className = postoInfo.comando ? 'posto-badge posto-comando' : 'posto-badge';
-      badgeEl.innerHTML = `<span class="posto-sigla">${escaparHTML(postoInfo.sigla)}</span> ${escaparHTML(postoInfo.titulo)}`;
+      badgeEl.innerHTML = `<span>${escaparHTML(postoInfo.sigla)}</span> · ${escaparHTML(postoInfo.titulo)}`;
 
       detalheEl.style.display = 'block';
       const notaTxt = postoInfo.nota ? ` · <em>${escaparHTML(postoInfo.nota)}</em>` : '';
       detalheEl.innerHTML = `${escaparHTML(postoInfo.secao)} (${escaparHTML(postoInfo.foco)})${notaTxt}`;
 
       avatarBox.className = postoInfo.comando ? 'avatar avatar-comando' : 'avatar';
-      document.getElementById('header-subtitulo').innerText =
-        `${postoInfo.sigla} · ${postoInfo.titulo} · ${empresa} · Escala ${diasTrab}x${diasFolg}`;
     } else {
       badgeEl.style.display = 'none';
       detalheEl.style.display = 'none';
       avatarBox.className = 'avatar';
-      document.getElementById('header-subtitulo').innerText = `${empresa} · Escala ${diasTrab}x${diasFolg}`;
     }
 
     if (avatarUrl) {
       avatarBox.innerHTML = `<img src="${escaparHTML(avatarUrl)}" alt="Foto de perfil">`;
     } else {
-      const iniciais = postoInfo
+      avatarBox.innerText = postoInfo
         ? postoInfo.sigla
-        : (nome
-            .split(' ')
-            .filter(Boolean)
-            .slice(0, 2)
-            .map(p => p[0].toUpperCase())
-            .join('') || 'DB');
-      avatarBox.innerText = iniciais;
+        : (nome.split(' ').filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('') || 'DB');
     }
 
     document.getElementById('input-nome').value = perfilAtual?.nome_exibicao || '';
-    document.getElementById('select-posto').value = perfilAtual?.posto || '';
+    document.getElementById('select-posto').value = normalizarCodigoPosto(perfilAtual?.posto);
+    document.getElementById('input-embarcacao').value = perfilAtual?.embarcacao || '';
     document.getElementById('input-empresa').value = perfilAtual?.empresa || '';
     document.getElementById('input-admissao').value = perfilAtual?.data_admissao || '';
     document.getElementById('input-dias-trabalho').value = diasTrab;
     document.getElementById('input-dias-folga').value = diasFolg;
-    sincronizarSelectPreset(diasTrab, diasFolg);
+
+    const obsInput = document.getElementById('observacao');
+    if (obsInput && !document.getElementById('edit-id').value) {
+      obsInput.placeholder = embarcacao ? `${embarcacao} · Barcarena, etc.` : 'Barcarena, comboio, etc.';
+    }
   }
 
   function alternarEditorPerfil() {
@@ -1803,14 +1473,7 @@ function escaparHTML(valor) {
     const perfilForm = document.getElementById('perfil-form');
     const isOpening = form.style.display === 'none';
     form.style.display = isOpening ? 'grid' : 'none';
-    if (isOpening) {
-      perfilForm.style.display = 'none';
-      document.getElementById('conta-email-atual').innerText = usuarioAtual?.email || '—';
-      document.getElementById('input-novo-email').value = '';
-      document.getElementById('input-nova-senha').value = '';
-      document.getElementById('input-confirma-senha').value = '';
-      document.getElementById('conta-msg').innerText = '';
-    }
+    if (isOpening) perfilForm.style.display = 'none';
   }
 
   document.getElementById('perfil-form').addEventListener('submit', async (e) => {
@@ -1821,6 +1484,7 @@ function escaparHTML(valor) {
 
     const nome_exibicao = document.getElementById('input-nome').value.trim();
     const posto = document.getElementById('select-posto').value || null;
+    const embarcacao = document.getElementById('input-embarcacao').value.trim() || null;
     const empresa = document.getElementById('input-empresa').value.trim();
     const data_admissao = document.getElementById('input-admissao').value || null;
     const dias_trabalho = Math.max(1, parseInt(document.getElementById('input-dias-trabalho').value, 10) || 10);
@@ -1832,7 +1496,6 @@ function escaparHTML(valor) {
     if (arquivoFoto) {
       const ext = arquivoFoto.name.split('.').pop().toLowerCase() || 'png';
       const caminhoArquivo = `${usuarioAtual.id}/avatar.${ext}`;
-
       const { error: uploadError } = await supabaseClient.storage
         .from('avatars')
         .upload(caminhoArquivo, arquivoFoto, { upsert: true });
@@ -1844,28 +1507,28 @@ function escaparHTML(valor) {
         return;
       }
 
-      const { data: publicData } = supabaseClient.storage
-        .from('avatars')
-        .getPublicUrl(caminhoArquivo);
-
+      const { data: publicData } = supabaseClient.storage.from('avatars').getPublicUrl(caminhoArquivo);
       avatar_url = `${publicData.publicUrl}?v=${Date.now()}`;
     }
 
+    const payload = {
+      nome_exibicao,
+      posto,
+      embarcacao,
+      empresa,
+      data_admissao,
+      dias_trabalho,
+      dias_folga,
+      avatar_url,
+      updated_at: new Date().toISOString()
+    };
+
     const { data, error } = await supabaseClient
       .from('perfis')
-      .update({
-        nome_exibicao,
-        posto,
-        empresa,
-        data_admissao,
-        dias_trabalho,
-        dias_folga,
-        avatar_url,
-        updated_at: new Date().toISOString()
-      })
+      .update(payload)
       .eq('id', usuarioAtual.id)
       .select()
-      .single();
+      .maybeSingle();
 
     btn.disabled = false;
     btn.innerText = 'Salvar perfil';
@@ -1875,7 +1538,7 @@ function escaparHTML(valor) {
       return;
     }
 
-    perfilAtual = data;
+    perfilAtual = data || { ...perfilAtual, ...payload };
     document.getElementById('input-foto').value = '';
     document.getElementById('perfil-form').style.display = 'none';
     renderizarPerfil();
@@ -1883,28 +1546,23 @@ function escaparHTML(valor) {
     renderizarCalendario();
   });
 
-  // --- ALTERAR CONTA (email/senha) ---
   document.getElementById('conta-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!supabaseClient || !usuarioAtual) return;
-
     const novoEmail = document.getElementById('input-novo-email').value.trim();
     const novaSenha = document.getElementById('input-nova-senha').value;
     const confirmaSenha = document.getElementById('input-confirma-senha').value;
     const msgEl = document.getElementById('conta-msg');
 
     if (!novoEmail && !novaSenha) {
-      msgEl.innerText = 'Preencha ao menos um campo (e-mail ou senha) para alterar.';
+      msgEl.innerText = 'Preencha e-mail ou senha para alterar.';
       return;
     }
-
     if (novaSenha && novaSenha.length < 6) {
-      msgEl.innerText = 'A nova senha deve ter no minimo 6 caracteres.';
+      msgEl.innerText = 'A nova senha deve ter no mínimo 6 caracteres.';
       return;
     }
-
     if (novaSenha && novaSenha !== confirmaSenha) {
-      msgEl.innerText = 'As senhas nao coincidem.';
+      msgEl.innerText = 'As senhas não coincidem.';
       return;
     }
 
@@ -1912,40 +1570,22 @@ function escaparHTML(valor) {
     if (novoEmail) updates.email = novoEmail;
     if (novaSenha) updates.password = novaSenha;
 
-    const btn = document.getElementById('btn-salvar-conta');
-    btn.disabled = true;
-    btn.innerText = 'Salvando...';
-    msgEl.innerText = '';
-
     const { error } = await supabaseClient.auth.updateUser(updates);
-
-    btn.disabled = false;
-    btn.innerText = 'Salvar';
-
-    if (error) {
-      msgEl.innerText = 'Erro: ' + error.message;
-      return;
-    }
-
-    if (novoEmail && novaSenha) {
-      msgEl.innerText = 'Senha alterada com sucesso. Confirme o novo e-mail na sua caixa de entrada.';
-    } else if (novoEmail) {
-      msgEl.innerText = 'Confirme o novo e-mail na sua caixa de entrada para concluir a troca.';
-    } else {
-      msgEl.innerText = 'Senha alterada com sucesso.';
-    }
-
-    document.getElementById('input-novo-email').value = '';
-    document.getElementById('input-nova-senha').value = '';
-    document.getElementById('input-confirma-senha').value = '';
+    msgEl.innerText = error ? 'Erro: ' + error.message : 'Dados da conta atualizados.';
   });
 
-  // --- ESCALAS, PREVISÃO DINÂMICA E CALENDÁRIO ---
   function calcularDias(inicio, fim) {
     const d1 = new Date(inicio + 'T00:00:00');
     const d2 = new Date(fim + 'T00:00:00');
     const diffDays = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
     return diffDays > 0 ? diffDays : 0;
+  }
+
+  function diasEntreHojeEData(dataObj) {
+    const hoje = new Date();
+    const hojeMeiaNoite = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+    const alvoMeiaNoite = new Date(dataObj.getFullYear(), dataObj.getMonth(), dataObj.getDate());
+    return Math.round((alvoMeiaNoite - hojeMeiaNoite) / (1000 * 60 * 60 * 24));
   }
 
   function formatarDataBR(dataISO) {
@@ -1970,7 +1610,6 @@ function escaparHTML(valor) {
       console.error('Erro ao buscar escalas:', error);
       return;
     }
-
     registrosCache = data || [];
     atualizarInterface(registrosCache);
     renderizarCalendario();
@@ -1989,24 +1628,16 @@ function escaparHTML(valor) {
     }
 
     registros.forEach(item => {
-      if (item.tipo === 'Embarque' || item.tipo === 'Porto') {
-        diasTrabalhados += item.dias_totais;
-      } else if (item.tipo === 'Folga') {
-        diasFolgaGozada += item.dias_totais;
-      }
-
-      let tagClass = 'tag';
-      if (item.tipo === 'Embarque') tagClass += ' tag-embarque';
-      if (item.tipo === 'Folga') tagClass += ' tag-folga';
-      if (item.tipo === 'Atestado') tagClass += ' tag-atestado';
+      if (item.tipo === 'Embarque' || item.tipo === 'Porto') diasTrabalhados += item.dias_totais;
+      else if (item.tipo === 'Folga') diasFolgaGozada += item.dias_totais;
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td data-label="Tipo"><span class="${tagClass}">${escaparHTML(item.tipo)}</span></td>
-        <td data-label="Inicio">${formatarDataBR(item.data_inicio)}</td>
-        <td data-label="Fim">${formatarDataBR(item.data_fim)}</td>
-        <td data-label="Dias" class="num">${item.dias_totais}d</td>
-        <td data-label="Observacao">${escaparHTML(item.observacao || '—')}</td>
+        <td><span class="tag">${escaparHTML(item.tipo)}</span></td>
+        <td>${formatarDataBR(item.data_inicio)}</td>
+        <td>${formatarDataBR(item.data_fim)}</td>
+        <td><strong>${item.dias_totais}d</strong></td>
+        <td>${escaparHTML(item.observacao || '—')}</td>
         <td>
           <div class="row-actions">
             <button class="btn-link" onclick="prepararEdicao(${item.id})">Editar</button>
@@ -2019,11 +1650,9 @@ function escaparHTML(valor) {
 
     const folgasGeradas = Math.floor(diasTrabalhados * proporcao);
     const saldo = folgasGeradas - diasFolgaGozada;
-
     document.getElementById('total-trabalhado').innerText = `${diasTrabalhados}d`;
     document.getElementById('folgas-geradas').innerText = `${folgasGeradas}d`;
     document.getElementById('folgas-gozadas').innerText = `${diasFolgaGozada}d`;
-
     const saldoEl = document.getElementById('saldo-folga');
     saldoEl.innerText = `${saldo}d`;
     saldoEl.style.color = saldo < 0 ? 'var(--negative)' : 'var(--positive)';
@@ -2032,112 +1661,71 @@ function escaparHTML(valor) {
   function gerarMapaCalendarioEPrevisao() {
     const { diasTrab, diasFolg, proporcao } = obterRegraEscala();
     const mapaDias = {};
-
     const ordenados = [...registrosCache].sort((a, b) => a.data_inicio.localeCompare(b.data_inicio));
-
     let ultimaDataReal = null;
+
     ordenados.forEach(reg => {
       const atual = new Date(reg.data_inicio + 'T00:00:00');
       const fim = new Date(reg.data_fim + 'T00:00:00');
       while (atual <= fim) {
         const iso = dataParaISO(atual);
-        mapaDias[iso] = {
-          tipo: reg.tipo,
-          observacao: reg.observacao,
-          previsto: false
-        };
-        if (!ultimaDataReal || atual > ultimaDataReal) {
-          ultimaDataReal = new Date(atual);
-        }
+        mapaDias[iso] = { tipo: reg.tipo, observacao: reg.observacao };
+        if (!ultimaDataReal || atual > ultimaDataReal) ultimaDataReal = new Date(atual);
         atual.setDate(atual.getDate() + 1);
       }
     });
 
     const bannerEl = document.getElementById('forecast-banner');
-
     if (!ultimaDataReal) {
-      bannerEl.innerHTML = '<span>Registre um periodo abaixo para gerar a previsao automatica dos proximos dias.</span>';
+      bannerEl.innerHTML = '<span>Clique em "+ Novo registro" para lançar um período e gerar sua previsão automática.</span>';
       return mapaDias;
     }
 
-    const ultimoISO = dataParaISO(ultimaDataReal);
-    const ultimoEstado = mapaDias[ultimoISO].tipo;
-
+    const ultimoEstado = mapaDias[dataParaISO(ultimaDataReal)].tipo;
     let faseAtual = 'PrevTrabalho';
     let diasRestantesNaFase = diasTrab;
 
     if (ultimoEstado === 'Folga') {
       let diasFolgaNoBloco = 0;
       const cursor = new Date(ultimaDataReal);
-      while (true) {
-        const regDia = mapaDias[dataParaISO(cursor)];
-        if (regDia && regDia.tipo === 'Folga') {
-          diasFolgaNoBloco++;
-          cursor.setDate(cursor.getDate() - 1);
-        } else {
-          break;
-        }
+      while (mapaDias[dataParaISO(cursor)]?.tipo === 'Folga') {
+        diasFolgaNoBloco++;
+        cursor.setDate(cursor.getDate() - 1);
       }
-
       if (diasFolgaNoBloco < diasFolg) {
         faseAtual = 'PrevFolga';
         diasRestantesNaFase = diasFolg - diasFolgaNoBloco;
-      } else {
-        faseAtual = 'PrevTrabalho';
-        diasRestantesNaFase = diasTrab;
       }
     } else {
       let diasNoTurnoAtual = 0;
       let diasTrabalhadosNoTurno = 0;
       const cursor = new Date(ultimaDataReal);
-
       for (let step = 0; step < 90; step++) {
         const regDia = mapaDias[dataParaISO(cursor)];
-        if (!regDia) break;
-        if (regDia.tipo === 'Folga') break;
-
+        if (!regDia || regDia.tipo === 'Folga') break;
         diasNoTurnoAtual++;
-        if (regDia.tipo === 'Porto' || regDia.tipo === 'Embarque') {
-          diasTrabalhadosNoTurno++;
-        }
+        if (regDia.tipo === 'Porto' || regDia.tipo === 'Embarque') diasTrabalhadosNoTurno++;
         cursor.setDate(cursor.getDate() - 1);
       }
-
       if (diasNoTurnoAtual < diasTrab) {
         faseAtual = 'PrevTrabalho';
         diasRestantesNaFase = diasTrab - diasNoTurnoAtual;
       } else {
         faseAtual = 'PrevFolga';
-        diasRestantesNaFase = diasNoTurnoAtual <= diasTrab
-          ? diasFolg
-          : Math.max(diasFolg, Math.round(diasTrabalhadosNoTurno * proporcao));
+        diasRestantesNaFase = diasNoTurnoAtual <= diasTrab ? diasFolg : Math.max(diasFolg, Math.round(diasTrabalhadosNoTurno * proporcao));
       }
     }
 
     const cursorFrente = new Date(ultimaDataReal);
     cursorFrente.setDate(cursorFrente.getDate() + 1);
-
-    let inicioProximaFolga = null;
+    let inicioProximaFolga = faseAtual === 'PrevFolga' ? new Date(cursorFrente) : null;
     let fimProximaFolga = null;
     let retornoAoTrabalho = null;
 
-    if (faseAtual === 'PrevFolga') {
-      inicioProximaFolga = new Date(cursorFrente);
-    }
-
     for (let i = 0; i < 180; i++) {
       const iso = dataParaISO(cursorFrente);
-
-      mapaDias[iso] = {
-        tipo: faseAtual,
-        observacao: 'Previsao',
-        previsto: true
-      };
-
-      if (faseAtual === 'PrevFolga' && inicioProximaFolga && !retornoAoTrabalho) {
-        fimProximaFolga = new Date(cursorFrente);
-      }
-
+      mapaDias[iso] = { tipo: faseAtual, observacao: 'Previsao' };
+      if (faseAtual === 'PrevFolga' && inicioProximaFolga && !retornoAoTrabalho) fimProximaFolga = new Date(cursorFrente);
       diasRestantesNaFase--;
       if (diasRestantesNaFase <= 0) {
         if (faseAtual === 'PrevTrabalho') {
@@ -2158,20 +1746,36 @@ function escaparHTML(valor) {
           }
         }
       }
-
       cursorFrente.setDate(cursorFrente.getDate() + 1);
     }
 
     if (inicioProximaFolga && fimProximaFolga) {
-      const iniStr = formatarDataBR(dataParaISO(inicioProximaFolga));
-      const fimStr = formatarDataBR(dataParaISO(fimProximaFolga));
-      const retStr = retornoAoTrabalho ? formatarDataBR(dataParaISO(retornoAoTrabalho)) : '—';
+      const diasParaFolga = diasEntreHojeEData(inicioProximaFolga);
+      const diasParaRetorno = retornoAoTrabalho ? diasEntreHojeEData(retornoAoTrabalho) : null;
+      const badgeFolga = diasParaFolga < 0 ? 'Em folga' : formatarContagemDias(diasParaFolga);
+      const badgeRetorno = diasParaRetorno === null
+        ? '—'
+        : (diasParaRetorno < 0 ? 'Em andamento' : formatarContagemDias(diasParaRetorno));
+
       bannerEl.innerHTML = `
-        <span>Proxima folga prevista: <strong>${iniStr} a ${fimStr}</strong> (${diasFolg}d)</span>
-        <span>Retorno previsto ao trabalho: <strong>${retStr}</strong> (Escala ${diasTrab}x${diasFolg})</span>
+        <div class="forecast-grid">
+          <div class="forecast-box">
+            <div>
+              <div><strong>Desembarque / Folga</strong></div>
+              <div>${formatarDataBR(dataParaISO(inicioProximaFolga))} a ${formatarDataBR(dataParaISO(fimProximaFolga))} (${diasFolg}d)</div>
+            </div>
+            <span class="countdown-pill">${escaparHTML(badgeFolga)}</span>
+          </div>
+          <div class="forecast-box">
+            <div>
+              <div><strong>Retorno ao trabalho</strong></div>
+              <div>${retornoAoTrabalho ? formatarDataBR(dataParaISO(retornoAoTrabalho)) : '—'} · Escala ${diasTrab}x${diasFolg}</div>
+            </div>
+            <span class="countdown-pill retorno">${escaparHTML(badgeRetorno)}</span>
+          </div>
+        </div>
       `;
     }
-
     return mapaDias;
   }
 
@@ -2188,11 +1792,9 @@ function escaparHTML(valor) {
     const ano = mesReferencia.getFullYear();
     const mes = mesReferencia.getMonth();
     titulo.innerText = mesReferencia.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-
     const mapaDias = gerarMapaCalendarioEPrevisao();
 
-    const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
-    diasSemana.forEach(d => {
+    ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'].forEach(d => {
       const el = document.createElement('div');
       el.className = 'cal-dow';
       el.innerText = d;
@@ -2201,50 +1803,34 @@ function escaparHTML(valor) {
 
     const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
     const totalDiasMes = new Date(ano, mes + 1, 0).getDate();
-    const hojeISO = dataParaISO(new Date());
 
     for (let i = 0; i < primeiroDiaSemana; i++) {
       const vazio = document.createElement('div');
-      vazio.className = 'cal-day empty';
+      vazio.className = 'cal-day';
       grid.appendChild(vazio);
     }
 
     for (let dia = 1; dia <= totalDiasMes; dia++) {
-      const dataAtual = new Date(ano, mes, dia);
-      const iso = dataParaISO(dataAtual);
+      const iso = dataParaISO(new Date(ano, mes, dia));
       const reg = mapaDias[iso];
-
       const celula = document.createElement('div');
       celula.className = 'cal-day';
-      if (iso === hojeISO) celula.classList.add('today');
-
       let subtexto = '';
+
       if (reg) {
-        if (reg.tipo === 'Porto') {
-          celula.classList.add('is-porto');
-          subtexto = reg.observacao ? `Porto · ${reg.observacao}` : 'Porto';
-        } else if (reg.tipo === 'Embarque') {
-          celula.classList.add('is-embarque');
-          subtexto = reg.observacao ? `Embarque · ${reg.observacao}` : 'Embarque';
-        } else if (reg.tipo === 'Folga') {
-          celula.classList.add('is-folga');
-          subtexto = reg.observacao ? `Folga · ${reg.observacao}` : 'Folga';
-        } else if (reg.tipo === 'Atestado') {
-          celula.classList.add('is-atestado');
-          subtexto = reg.observacao ? `Atestado · ${reg.observacao}` : 'Atestado';
-        } else if (reg.tipo === 'PrevTrabalho') {
-          celula.classList.add('is-prev-trabalho');
-          subtexto = 'Prev. Trabalho';
-        } else if (reg.tipo === 'PrevFolga') {
-          celula.classList.add('is-prev-folga');
-          subtexto = 'Prev. Folga';
-        }
+        const mapaClasse = {
+          Porto: 'is-porto',
+          Embarque: 'is-embarque',
+          Folga: 'is-folga',
+          Atestado: 'is-atestado',
+          PrevTrabalho: 'is-prev-trabalho',
+          PrevFolga: 'is-prev-folga'
+        };
+        if (mapaClasse[reg.tipo]) celula.classList.add(mapaClasse[reg.tipo]);
+        subtexto = reg.tipo === 'PrevTrabalho' ? 'Prev. Trabalho' : reg.tipo === 'PrevFolga' ? 'Prev. Folga' : (reg.observacao ? `${reg.tipo} · ${reg.observacao}` : reg.tipo);
       }
 
-      celula.innerHTML = `
-        <span class="cal-day-num">${dia}</span>
-        <span class="cal-day-label" title="${escaparHTML(subtexto)}">${escaparHTML(subtexto)}</span>
-      `;
+      celula.innerHTML = `<span class="cal-day-num">${dia}</span><span class="cal-day-label">${escaparHTML(subtexto)}</span>`;
       grid.appendChild(celula);
     }
   }
@@ -2252,63 +1838,55 @@ function escaparHTML(valor) {
   function prepararEdicao(id) {
     const item = registrosCache.find(r => r.id === id);
     if (!item) return;
-
     document.getElementById('edit-id').value = item.id;
-    document.getElementById('tipo').value = item.tipo;
+    selecionarTipoRegistro(item.tipo);
     document.getElementById('data_inicio').value = item.data_inicio;
     document.getElementById('data_fim').value = item.data_fim;
     document.getElementById('observacao').value = item.observacao || '';
-
     document.getElementById('form-titulo').innerText = 'Editar registro';
     document.getElementById('btn-salvar').innerText = 'Atualizar';
-    document.getElementById('btn-cancelar').style.display = 'inline-block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('modal-registro').classList.add('is-open');
   }
 
   function cancelarEdicao() {
     document.getElementById('escala-form').reset();
     document.getElementById('edit-id').value = '';
+    selecionarTipoRegistro('Porto');
     document.getElementById('form-titulo').innerText = 'Novo registro';
-    document.getElementById('btn-salvar').innerText = 'Salvar';
-    document.getElementById('btn-cancelar').style.display = 'none';
+    document.getElementById('btn-salvar').innerText = 'Salvar registro';
+    renderizarPerfil();
   }
 
   document.getElementById('escala-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!usuarioAtual) return;
-
     const editId = document.getElementById('edit-id').value;
     const tipo = document.getElementById('tipo').value;
     const data_inicio = document.getElementById('data_inicio').value;
     const data_fim = document.getElementById('data_fim').value;
-    const observacao = document.getElementById('observacao').value;
+    let observacao = document.getElementById('observacao').value.trim();
+
+    if (!observacao && (tipo === 'Embarque' || tipo === 'Porto') && perfilAtual?.embarcacao) {
+      observacao = perfilAtual.embarcacao.trim();
+    }
 
     const dias_totais = calcularDias(data_inicio, data_fim);
 
     if (dias_totais <= 0) {
-      alert('A data final deve ser igual ou posterior a data inicial.');
+      alert('A data final deve ser igual ou posterior à data inicial.');
       return;
     }
 
     if (editId) {
-      const { error } = await supabaseClient
-        .from('escalas')
-        .update({ tipo, data_inicio, data_fim, dias_totais, observacao })
-        .eq('id', editId);
-
-      if (error) alert('Erro ao atualizar registro.');
-      else {
-        cancelarEdicao();
+      const { error } = await supabaseClient.from('escalas').update({ tipo, data_inicio, data_fim, dias_totais, observacao }).eq('id', editId);
+      if (!error) {
+        fecharModalRegistro();
         carregarEscalas();
       }
     } else {
-      const { error } = await supabaseClient
-        .from('escalas')
-        .insert([{ tipo, data_inicio, data_fim, dias_totais, observacao, user_id: usuarioAtual.id }]);
-
-      if (error) alert('Erro ao salvar registro.');
-      else {
-        document.getElementById('escala-form').reset();
+      const { error } = await supabaseClient.from('escalas').insert([{ tipo, data_inicio, data_fim, dias_totais, observacao, user_id: usuarioAtual.id }]);
+      if (!error) {
+        fecharModalRegistro();
         carregarEscalas();
       }
     }
@@ -2316,52 +1894,15 @@ function escaparHTML(valor) {
 
   async function deletarRegistro(id) {
     if (!confirm('Tem certeza que deseja apagar este registro?')) return;
-
-    const { error } = await supabaseClient
-      .from('escalas')
-      .delete()
-      .eq('id', id);
-
-    if (error) alert('Erro ao excluir.');
-    else carregarEscalas();
+    const { error } = await supabaseClient.from('escalas').delete().eq('id', id);
+    if (!error) carregarEscalas();
   }
 
   async function limparTodosRegistros() {
-    if (!supabaseClient || !usuarioAtual) return;
-
-    if (registrosCache.length === 0) {
-      alert('Nao ha registros para limpar.');
-      return;
-    }
-
-    const primeiraConfirmacao = confirm(
-      'ATENCAO: isso vai apagar TODOS os seus registros permanentemente (escalas, folgas, atestados). Deseja continuar?'
-    );
-    if (!primeiraConfirmacao) return;
-
-    const segundaConfirmacao = confirm(
-      'Confirme mais uma vez: apagar todos os ' + registrosCache.length + ' registros? Esta acao NAO pode ser desfeita.'
-    );
-    if (!segundaConfirmacao) return;
-
-    const { error } = await supabaseClient
-      .from('escalas')
-      .delete()
-      .eq('user_id', usuarioAtual.id);
-
-    if (error) {
-      alert('Erro ao limpar registros: ' + error.message);
-      return;
-    }
-
-    cancelarEdicao();
-    await carregarEscalas();
-  }
-
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker.js').catch(() => {});
-    });
+    if (!supabaseClient || !usuarioAtual || registrosCache.length === 0) return;
+    if (!confirm('Apagar TODOS os seus registros permanentemente?')) return;
+    const { error } = await supabaseClient.from('escalas').delete().eq('user_id', usuarioAtual.id);
+    if (!error) { cancelarEdicao(); carregarEscalas(); }
   }
 </script>
 
