@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diario de Bordo</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --positive: #4ade80;
+      --negative: #f87171;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    }
+
+    html, body { margin: 0; }
+
+    body {
+      padding: 36px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #e2e8f0;
+      line-height: 1.5;
+      background:
+        radial-gradient(ellipse 90% 55% at 50% -10%, rgba(37, 99, 235, 0.32), transparent 65%),
+        radial-gradient(ellipse 60% 40% at 85% 100%, rgba(30, 64, 120, 0.42), transparent 70%),
+        linear-gradient(180deg, #061225 0%, #0a1c34 55%, #07172c 100%);
+      background-attachment: fixed;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(90deg, transparent 0, transparent 79px, rgba(120, 170, 220, 0.035) 79px, rgba(120, 170, 220, 0.035) 80px),
+        repeating-linear-gradient(0deg, transparent 0, transparent 79px, rgba(120, 170, 220, 0.035) 79px, rgba(120, 170, 220, 0.035) 80px);
+      pointer-events: none;
+      z-index: 0;
+      -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 25%, transparent 78%);
+      mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 25%, transparent 78%);
+    }
+
+    .page {
+      width: 100%;
+      max-width: 960px;
+      margin: auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .auth-waves {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 180px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* =============================================
+       LOGIN
+       ============================================= */
+
+    .auth-box {
+      width: 100%;
+      max-width: 430px;
+      margin: 0 auto;
+      padding: 40px 36px 34px;
+      background: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      box-shadow:
+        0 28px 70px -12px rgba(0, 8, 20, 0.55),
+        0 12px 28px -8px rgba(0, 8, 20, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+      color: #18181b;
+    }
+
+    .auth-logo {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 15px;
+      background: linear-gradient(145deg, #1e3a8a 0%, #0c1e3f 100%);
+      color: #ffffff;
+      box-shadow:
+        0 10px 24px -6px rgba(15, 23, 42, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .auth-logo svg { width: 30px; height: 30px; }
+
+    .auth-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 0 0 6px;
+      letter-spacing: -0.025em;
+      color: #0f172a;
+    }
+
+    .auth-subtitle {
+      font-size: 0.875rem;
+      color: #64748b;
+      text-align: center;
+      margin: 0 0 26px;
+      line-height: 1.5;
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      background: #f1f5f9;
+      border-radius: 10px;
+      margin-bottom: 22px;
+    }
+
+    .auth-tabs button {
+      height: 36px;
+      padding: 0 15px;
+      border: none;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      font-family: inherit;
+    }
+
+    .auth-tabs .btn-active-tab {
+      background: #ffffff;
+      color: #0f172a;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12), 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+
+    .auth-tabs .btn-secondary {
+      background: transparent;
+      color: #64748b;
+    }
+
+    .auth-tabs .btn-secondary:hover { color: #0f172a; }
+
+    .auth-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .auth-field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .auth-field input {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      background: #f8fafc;
+      font-size: 0.92rem;
+      color: #0f172a;
+      font-family: inherit;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+
+    .auth-field input::placeholder { color: #94a3b8; }
+
+    .auth-field input:focus {
+      outline: none;
+      background: #ffffff;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .auth-submit {
+      height: 46px;
+      margin-top: 6px;
+      border: none;
+      border-radius: 9px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      color: #ffffff;
+      cursor: pointer;
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      box-shadow: 0 8px 20px -6px rgba(37, 99, 235, 0.5);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      font-family: inherit;
+    }
+
+    .auth-submit:hover {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px -6px rgba(37, 99, 235, 0.55);
+    }
+
+    .auth-submit:active { transform: translateY(0); }
+
+    .auth-links {
+      text-align: right;
+      margin-top: -4px;
+    }
+
+    .auth-links a {
+      font-size: 0.82rem;
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .auth-links a:hover { text-decoration: underline; }
+
+    .auth-msg {
+      text-align: center;
+      font-size: 0.84rem;
+      color: #475569;
+      margin-top: 16px;
+      line-height: 1.5;
+    }
+
+    .auth-msg:not(:empty) {
+      padding: 10px 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+
+    /* =============================================
+       TOP BAR
+       ============================================= */
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(120, 170, 230, 0.14);
+      margin-bottom: 26px;
+    }
+
+    .top-bar-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #1e3a8a 0%, #0c1e3f 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow:
+        0 10px 22px -6px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
+    }
+
+    .brand-badge svg { width: 22px; height: 22px; }
+
+    .top-bar h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: #f1f5f9;
+    }
+
+    .top-bar .meta {
+      display: block;
+      font-size: 0.82rem;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    /* =============================================
+       CARDS
+       ============================================= */
+
+    .block {
+      background: linear-gradient(180deg, rgba(21, 40, 70, 0.72) 0%, rgba(12, 26, 50, 0.72) 100%);
+      border: 1px solid rgba(120, 170, 230, 0.12);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 22px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow:
+        0 20px 44px -20px rgba(0, 0, 0, 0.65),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .block-title {
+      margin: 0 0 18px 0;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: #f1f5f9;
+    }
+
+    /* =============================================
+       PERFIL & CONFIGURAÇÃO DE ESCALA
+       ============================================= */
+
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .profile-identity {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      border: 1px solid rgba(120, 170, 230, 0.22);
+      background: rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.25rem;
+      color: #cbd5e1;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .profile-name {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 0 0 6px 0;
+      color: #f1f5f9;
+    }
+
+    .profile-details {
+      font-size: 0.875rem;
+      color: #94a3b8;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .escala-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.16);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      color: #93c5fd;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .profile-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .profile-form {
+      margin-top: 22px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(120, 170, 230, 0.1);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+
+    .escala-custom-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .form-msg {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      grid-column: 1 / -1;
+    }
+
+    .form-msg:not(:empty) {
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(120, 170, 230, 0.15);
+      border-radius: 8px;
+    }
+
+    .conta-atual {
+      grid-column: 1 / -1;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(120, 170, 230, 0.15);
+      border-radius: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: baseline;
+    }
+
+    .conta-atual .label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .conta-atual strong {
+      color: #f1f5f9;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    /* =============================================
+       MÉTRICAS
+       ============================================= */
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: linear-gradient(180deg, rgba(21, 40, 70, 0.72) 0%, rgba(12, 26, 50, 0.72) 100%);
+      border: 1px solid rgba(120, 170, 230, 0.12);
+      border-radius: 14px;
+      margin-bottom: 22px;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow:
+        0 20px 44px -20px rgba(0, 0, 0, 0.65),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .metric {
+      padding: 18px 22px;
+      border-right: 1px solid rgba(120, 170, 230, 0.1);
+    }
+
+    .metric:last-child { border-right: none; }
+
+    .metric-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .metric-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #f1f5f9;
+      letter-spacing: -0.02em;
+    }
+
+    .metric-sub {
+      font-size: 0.74rem;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    /* =============================================
+       CALENDÁRIO + PREVISÃO
+       ============================================= */
+
+    .cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .cal-header .block-title { margin: 0; }
+
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cal-month-title {
+      font-weight: 600;
+      min-width: 160px;
+      text-align: center;
+      text-transform: capitalize;
+      color: #f1f5f9;
+      font-size: 0.9rem;
+    }
+
+    .forecast-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      border-radius: 10px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.24);
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+
+    .forecast-banner strong {
+      color: #f1f5f9;
+    }
+
+    .cal-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-bottom: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .dot-porto { background: rgba(129, 140, 248, 0.5); border: 1px solid rgba(129, 140, 248, 0.85); }
+    .dot-embarque { background: rgba(96, 165, 250, 0.5); border: 1px solid rgba(96, 165, 250, 0.85); }
+    .dot-folga { background: rgba(74, 222, 128, 0.45); border: 1px solid rgba(74, 222, 128, 0.8); }
+    .dot-atestado { background: rgba(250, 204, 21, 0.45); border: 1px solid rgba(250, 204, 21, 0.8); }
+    .dot-prev-trab { background: rgba(96, 165, 250, 0.16); border: 1px dashed rgba(147, 197, 253, 0.8); }
+    .dot-prev-folga { background: rgba(74, 222, 128, 0.14); border: 1px dashed rgba(134, 239, 172, 0.8); }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      border-top: 1px solid rgba(120, 170, 230, 0.12);
+      border-left: 1px solid rgba(120, 170, 230, 0.12);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .cal-dow {
+      padding: 10px 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.04);
+      border-right: 1px solid rgba(120, 170, 230, 0.1);
+      border-bottom: 1px solid rgba(120, 170, 230, 0.1);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .cal-day {
+      min-height: 74px;
+      padding: 7px 9px;
+      border-right: 1px solid rgba(120, 170, 230, 0.08);
+      border-bottom: 1px solid rgba(120, 170, 230, 0.08);
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.015);
+      gap: 4px;
+      position: relative;
+    }
+
+    .cal-day.empty { background: transparent; }
+    .cal-day.is-porto { background: rgba(129, 140, 248, 0.16); }
+    .cal-day.is-embarque { background: rgba(96, 165, 250, 0.16); }
+    .cal-day.is-folga { background: rgba(74, 222, 128, 0.13); }
+    .cal-day.is-atestado { background: rgba(250, 204, 21, 0.12); }
+
+    /* Estilos visuais da previsao */
+    .cal-day.is-prev-trabalho {
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(96, 165, 250, 0.05),
+        rgba(96, 165, 250, 0.05) 6px,
+        rgba(96, 165, 250, 0.11) 6px,
+        rgba(96, 165, 250, 0.11) 12px
+      );
+      box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.28);
+    }
+
+    .cal-day.is-prev-folga {
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(74, 222, 128, 0.04),
+        rgba(74, 222, 128, 0.04) 6px,
+        rgba(74, 222, 128, 0.1) 6px,
+        rgba(74, 222, 128, 0.1) 12px
+      );
+      box-shadow: inset 0 0 0 1px rgba(134, 239, 172, 0.28);
+    }
+
+    .cal-day-num {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: #f1f5f9;
+    }
+
+    .cal-day.today .cal-day-num {
+      color: #93c5fd;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .cal-day-label {
+      font-size: 0.67rem;
+      color: #94a3b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cal-day.is-prev-trabalho .cal-day-label { color: #93c5fd; font-style: italic; }
+    .cal-day.is-prev-folga .cal-day-label { color: #86efac; font-style: italic; }
+
+    /* =============================================
+       FORMULÁRIO E TABELA
+       ============================================= */
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 140px 150px 150px 1fr auto;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-bottom: 7px;
+      font-weight: 500;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid rgba(120, 170, 230, 0.16);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      color: #f1f5f9;
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+
+    .field input::placeholder { color: #64748b; }
+
+    .field input[type="file"] {
+      height: auto;
+      padding: 8px 12px;
+      font-size: 0.82rem;
+    }
+
+    .field input[type="date"]::-webkit-calendar-picker-indicator,
+    .field input[type="date"]::-webkit-inner-spin-button {
+      filter: invert(0.7);
+      cursor: pointer;
+    }
+
+    .field select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    .field select option {
+      background: #0d1e35;
+      color: #f1f5f9;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+    }
+
+    .actions { display: flex; gap: 8px; }
+
+    button {
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background-color 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      color: #ffffff;
+      box-shadow: 0 8px 20px -8px rgba(37, 99, 235, 0.6);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      box-shadow: 0 10px 24px -8px rgba(37, 99, 235, 0.7);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      color: #cbd5e1;
+      border-color: rgba(120, 170, 230, 0.16);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #f1f5f9;
+      border-color: rgba(120, 170, 230, 0.28);
+    }
+
+    .btn-danger {
+      background: rgba(248, 113, 113, 0.14);
+      color: #fca5a5;
+      border-color: rgba(248, 113, 113, 0.3);
+    }
+
+    .btn-danger:hover {
+      background: rgba(248, 113, 113, 0.22);
+      color: #fecaca;
+      border-color: rgba(248, 113, 113, 0.5);
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .history-header .block-title { margin: 0; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th {
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      padding: 12px;
+      border-bottom: 1px solid rgba(120, 170, 230, 0.14);
+    }
+
+    td {
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: middle;
+      color: #e2e8f0;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .num {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      color: #f1f5f9;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 5px;
+      font-size: 0.74rem;
+      font-weight: 500;
+      border: 1px solid rgba(120, 170, 230, 0.2);
+      background: rgba(255, 255, 255, 0.06);
+      color: #cbd5e1;
+    }
+
+    .tag-embarque {
+      background: rgba(96, 165, 250, 0.16);
+      border-color: rgba(96, 165, 250, 0.35);
+      color: #93c5fd;
+    }
+
+    .tag-folga {
+      background: rgba(74, 222, 128, 0.14);
+      border-color: rgba(74, 222, 128, 0.32);
+      color: #86efac;
+    }
+
+    .tag-atestado {
+      background: rgba(250, 204, 21, 0.14);
+      border-color: rgba(250, 204, 21, 0.32);
+      color: #fde047;
+    }
+
+    .row-actions { display: flex; gap: 4px; }
+
+    .btn-link {
+      height: auto;
+      padding: 5px 9px;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      border: none;
+      border-radius: 6px;
+    }
+
+    .btn-link:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #f1f5f9;
+    }
+
+    .btn-link.danger:hover {
+      background: rgba(248, 113, 113, 0.12);
+      color: #f87171;
+    }
+
+    /* =============================================
+       MOBILE
+       ============================================= */
+    @media (max-width: 760px) {
+      body { padding: 20px 14px 100px; }
+
+      .auth-box { padding: 32px 24px 28px; }
+      .auth-title { font-size: 1.35rem; }
+      .auth-waves { height: 110px; opacity: 0.85; }
+
+      .block { padding: 18px; border-radius: 12px; }
+
+      .top-bar { gap: 12px; }
+      .top-bar h1 { font-size: 1.2rem; }
+      .brand-badge { width: 40px; height: 40px; border-radius: 11px; }
+
+      .metrics {
+        grid-template-columns: repeat(2, 1fr);
+        border-radius: 12px;
+      }
+      .metric {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(120, 170, 230, 0.1);
+      }
+      .metric:nth-child(odd) { border-right: 1px solid rgba(120, 170, 230, 0.1); }
+      .metric:nth-child(even) { border-right: none; }
+      .metric:nth-last-child(-n+2) { border-bottom: none; }
+      .metric-value { font-size: 1.35rem; }
+
+      .profile-header { align-items: flex-start; }
+      .profile-buttons { width: 100%; }
+      .profile-buttons button { flex: 1; }
+      .avatar { width: 56px; height: 56px; font-size: 1.05rem; }
+      .profile-name { font-size: 1.05rem; }
+      .profile-details { font-size: 0.8rem; gap: 6px; flex-direction: column; align-items: flex-start; }
+      .profile-form { grid-template-columns: 1fr; }
+
+      .cal-header { gap: 10px; }
+      .cal-nav { width: 100%; gap: 6px; justify-content: space-between; }
+      .cal-nav button { height: 36px; padding: 0 12px; font-size: 0.8rem; }
+      .cal-month-title { min-width: 0; flex: 1; font-size: 0.85rem; }
+      .cal-legend { gap: 10px; font-size: 0.74rem; }
+      .cal-dow { padding: 7px 4px; font-size: 0.65rem; }
+      .cal-day { min-height: 54px; padding: 5px; }
+      .cal-day-num { font-size: 0.8rem; }
+      .cal-day-label { display: none; }
+      .cal-day.is-porto::after,
+      .cal-day.is-embarque::after,
+      .cal-day.is-folga::after,
+      .cal-day.is-atestado::after,
+      .cal-day.is-prev-trabalho::after,
+      .cal-day.is-prev-folga::after {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        align-self: flex-start;
+      }
+      .cal-day.is-porto::after { background: #818cf8; }
+      .cal-day.is-embarque::after { background: #60a5fa; }
+      .cal-day.is-folga::after { background: #4ade80; }
+      .cal-day.is-atestado::after { background: #facc15; }
+      .cal-day.is-prev-trabalho::after { border: 1.5px solid #93c5fd; background: transparent; }
+      .cal-day.is-prev-folga::after { border: 1.5px solid #86efac; background: transparent; }
+
+      .form-row { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .form-row > div.field:first-of-type,
+      .form-row .field-obs,
+      .form-row .actions { grid-column: 1 / -1; }
+      .actions { flex-direction: column; }
+      .actions button { width: 100%; }
+
+      .history-header { gap: 10px; }
+      .history-header .btn-danger { width: 100%; }
+
+      .table-wrap { overflow-x: visible; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      tbody tr {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(120, 170, 230, 0.12);
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+      }
+      tbody tr:last-child { margin-bottom: 0; }
+      tbody td {
+        border: none;
+        padding: 5px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.85rem;
+      }
+      tbody td::before {
+        content: attr(data-label);
+        color: #94a3b8;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 500;
+        flex-shrink: 0;
+      }
+      tbody td:last-child {
+        justify-content: flex-end;
+        padding-top: 10px;
+        margin-top: 4px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      tbody td:last-child::before { content: none; }
+      tbody td[colspan] {
+        justify-content: center;
+        border-top: none;
+        margin-top: 0;
+        padding-top: 4px;
+      }
+      tbody td[colspan]::before { content: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <!-- Tela de Login / Cadastro -->
+  <section id="auth-view" class="auth-box">
+    <div class="auth-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="4.5" r="2"/>
+        <line x1="12" y1="6.5" x2="12" y2="21"/>
+        <line x1="7" y1="10" x2="17" y2="10"/>
+        <path d="M4 14c0 4 3.6 7 8 7s8-3 8-7"/>
+        <line x1="2" y1="14" x2="4" y2="14"/>
+        <line x1="20" y1="14" x2="22" y2="14"/>
+      </svg>
+    </div>
+
+    <h1 class="auth-title">Diario de Bordo</h1>
+    <p class="auth-subtitle">Acesse sua conta para registrar embarques, folgas e previsoes</p>
+
+    <div class="auth-tabs">
+      <button type="button" id="tab-login" class="btn-active-tab" onclick="alternarModoAuth('login')">Entrar</button>
+      <button type="button" id="tab-signup" class="btn-secondary" onclick="alternarModoAuth('signup')">Criar conta</button>
+    </div>
+
+    <form id="auth-form" class="auth-stack">
+      <div class="auth-field">
+        <label for="auth-email">E-mail</label>
+        <input type="email" id="auth-email" required placeholder="nome@exemplo.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label for="auth-password">Senha</label>
+        <input type="password" id="auth-password" required minlength="6" placeholder="Minimo 6 caracteres" autocomplete="current-password">
+      </div>
+      <div class="auth-links">
+        <a onclick="esqueciSenha(event)">Esqueci minha senha</a>
+      </div>
+      <button type="submit" class="auth-submit" id="auth-submit">Entrar</button>
+    </form>
+    <div id="auth-msg" class="auth-msg"></div>
+  </section>
+
+  <!-- Sistema Principal (visivel apos login) -->
+  <div id="app-view" style="display: none;">
+    <header class="top-bar">
+      <div class="top-bar-brand">
+        <div class="brand-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="4.5" r="2"/>
+            <line x1="12" y1="6.5" x2="12" y2="21"/>
+            <line x1="7" y1="10" x2="17" y2="10"/>
+            <path d="M4 14c0 4 3.6 7 8 7s8-3 8-7"/>
+            <line x1="2" y1="14" x2="4" y2="14"/>
+            <line x1="20" y1="14" x2="22" y2="14"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Diario de Bordo</h1>
+          <span class="meta" id="header-subtitulo">Base 10x5</span>
+        </div>
+      </div>
+      <button type="button" class="btn-secondary" onclick="sairConta()">Sair</button>
+    </header>
+
+    <section class="block">
+      <div class="profile-header">
+        <div class="profile-identity">
+          <div class="avatar" id="avatar-box">DB</div>
+          <div>
+            <h2 class="profile-name" id="perfil-nome-exibicao">Sem nome definido</h2>
+            <div class="profile-details">
+              <span id="perfil-empresa">Empresa: —</span>
+              <span id="perfil-admissao">Admissao: —</span>
+              <span class="escala-pill" id="perfil-escala-badge">Escala 10x5</span>
+            </div>
+          </div>
+        </div>
+        <div class="profile-buttons">
+          <button type="button" class="btn-secondary" onclick="alternarEditorPerfil()">Editar perfil e escala</button>
+          <button type="button" class="btn-secondary" onclick="alternarEditorConta()">Alterar conta</button>
+        </div>
+      </div>
+
+      <form id="perfil-form" class="profile-form" style="display: none;">
+        <div class="field">
+          <label for="input-nome">Nome ou apelido</label>
+          <input type="text" id="input-nome" placeholder="Como quer aparecer">
+        </div>
+        <div class="field">
+          <label for="input-empresa">Empresa</label>
+          <input type="text" id="input-empresa" placeholder="Ex: Atem">
+        </div>
+        <div class="field">
+          <label for="input-admissao">Data de admissao</label>
+          <input type="date" id="input-admissao">
+        </div>
+        <div class="field">
+          <label for="select-escala-preset">Modelo de escala</label>
+          <select id="select-escala-preset" onchange="aplicarPresetEscala()">
+            <option value="10x5">10 por 5 (10 trab / 5 folga)</option>
+            <option value="30x15">30 por 15 (30 trab / 15 folga)</option>
+            <option value="30x10">30 por 10 (30 trab / 10 folga)</option>
+            <option value="20x10">20 por 10 (20 trab / 10 folga)</option>
+            <option value="15x15">15 por 15 (15 trab / 15 folga)</option>
+            <option value="custom">Personalizada...</option>
+          </select>
+        </div>
+        <div class="escala-custom-group">
+          <div class="field">
+            <label for="input-dias-trabalho">Dias trabalho</label>
+            <input type="number" id="input-dias-trabalho" min="1" max="365" value="10" required>
+          </div>
+          <div class="field">
+            <label for="input-dias-folga">Dias folga</label>
+            <input type="number" id="input-dias-folga" min="1" max="365" value="5" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="input-foto">Foto de perfil</label>
+          <input type="file" id="input-foto" accept="image/*">
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn-primary" id="btn-salvar-perfil">Salvar perfil</button>
+        </div>
+      </form>
+
+      <form id="conta-form" class="profile-form" style="display: none;">
+        <div class="conta-atual">
+          <span class="label">E-mail atual:</span>
+          <strong id="conta-email-atual">—</strong>
+        </div>
+        <div class="field">
+          <label for="input-novo-email">Novo e-mail</label>
+          <input type="email" id="input-novo-email" placeholder="Deixe vazio para nao alterar" autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="input-nova-senha">Nova senha</label>
+          <input type="password" id="input-nova-senha" placeholder="Deixe vazio para nao alterar" minlength="6" autocomplete="new-password">
+        </div>
+        <div class="field">
+          <label for="input-confirma-senha">Confirmar nova senha</label>
+          <input type="password" id="input-confirma-senha" placeholder="Repita a nova senha" autocomplete="new-password">
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn-primary" id="btn-salvar-conta">Salvar</button>
+        </div>
+        <div id="conta-msg" class="form-msg"></div>
+      </form>
+    </section>
+
+    <section class="metrics">
+      <div class="metric">
+        <div class="metric-label">Dias trabalhados</div>
+        <div class="metric-value" id="total-trabalhado">0d</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Folgas geradas</div>
+        <div class="metric-value" id="folgas-geradas">0d</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Folgas gozadas</div>
+        <div class="metric-value" id="folgas-gozadas">0d</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Saldo atual</div>
+        <div class="metric-value" id="saldo-folga">0d</div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="cal-header">
+        <h2 class="block-title">Calendario e previsao</h2>
+        <div class="cal-nav">
+          <button type="button" class="btn-secondary" onclick="mudarMes(-1)">Anterior</button>
+          <span class="cal-month-title" id="cal-titulo"></span>
+          <button type="button" class="btn-secondary" onclick="mudarMes(1)">Proximo</button>
+        </div>
+      </div>
+
+      <div class="forecast-banner" id="forecast-banner">
+        <span>Registre um periodo abaixo para gerar a previsao automatica dos proximos dias.</span>
+      </div>
+
+      <div class="cal-legend">
+        <span class="legend-item"><span class="dot dot-porto"></span> Porto</span>
+        <span class="legend-item"><span class="dot dot-embarque"></span> Embarque</span>
+        <span class="legend-item"><span class="dot dot-folga"></span> Folga</span>
+        <span class="legend-item"><span class="dot dot-atestado"></span> Atestado</span>
+        <span class="legend-item"><span class="dot dot-prev-trab"></span> Prev. trabalho</span>
+        <span class="legend-item"><span class="dot dot-prev-folga"></span> Prev. folga</span>
+      </div>
+
+      <div class="cal-grid" id="cal-grid"></div>
+    </section>
+
+    <section class="block">
+      <h2 class="block-title" id="form-titulo">Novo registro</h2>
+      <form id="escala-form" class="form-row">
+        <input type="hidden" id="edit-id">
+        <div class="field">
+          <label for="tipo">Tipo</label>
+          <select id="tipo" required>
+            <option value="Porto">Porto</option>
+            <option value="Embarque">Embarque</option>
+            <option value="Folga">Folga</option>
+            <option value="Atestado">Atestado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="data_inicio">Inicio</label>
+          <input type="date" id="data_inicio" required>
+        </div>
+        <div class="field">
+          <label for="data_fim">Fim</label>
+          <input type="date" id="data_fim" required>
+        </div>
+        <div class="field field-obs">
+          <label for="observacao">Observacao</label>
+          <input type="text" id="observacao" placeholder="Barcarena, porto, etc.">
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn-primary" id="btn-salvar">Salvar</button>
+          <button type="button" class="btn-secondary" id="btn-cancelar" style="display:none;" onclick="cancelarEdicao()">Cancelar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="block">
+      <div class="history-header">
+        <h2 class="block-title">Historico</h2>
+        <button type="button" class="btn-danger" onclick="limparTodosRegistros()">Limpar todos os registros</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Inicio</th>
+              <th>Fim</th>
+              <th>Dias</th>
+              <th>Observacao</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="lista-escalas">
+            <tr><td colspan="6" style="text-align:center; color:#94a3b8;">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Ondas decorativas fixas -->
+<svg class="auth-waves" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M0,224 C240,160 480,288 720,224 C960,160 1200,288 1440,224 L1440,320 L0,320 Z" fill="rgba(37, 99, 235, 0.14)"/>
+  <path d="M0,256 C240,192 480,320 720,256 C960,192 1200,320 1440,256 L1440,320 L0,320 Z" fill="rgba(12, 30, 63, 0.4)"/>
+</svg>
+
+<script>
+  // =========================================================
+  // COLE SUAS CHAVES DO SUPABASE NAS DUAS LINHAS ABAIXO
+  // =========================================================
+  const SUPABASE_URL = 'https://lnnsabfptrihvqxjsjet.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_JccD6GwRfiieTSCoqlJt9A_jrn--ykd';
+
+  let supabaseClient = null;
+  let modoAuth = 'login';
+  let usuarioAtual = null;
+  let perfilAtual = null;
+  let registrosCache = [];
+  let mesReferencia = new Date();
+  mesReferencia.setDate(1);
+
+  if (!SUPABASE_URL.startsWith('http')) {
+    document.getElementById('auth-msg').innerText =
+      'Aviso: cole sua Project URL e sua Anon Key no final do arquivo index.html antes de entrar.';
+  } else {
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    iniciarAutenticacao();
+  }
+
+  function obterRegraEscala() {
+    const diasTrab = Math.max(1, parseInt(perfilAtual?.dias_trabalho, 10) || 10);
+    const diasFolg = Math.max(1, parseInt(perfilAtual?.dias_folga, 10) || 5);
+    return { diasTrab, diasFolg, proporcao: diasFolg / diasTrab };
+  }
+
+  // --- AUTENTICACAO ---
+  function alternarModoAuth(novoModo) {
+    modoAuth = novoModo;
+    const isLogin = modoAuth === 'login';
+    document.getElementById('tab-login').className = isLogin ? 'btn-active-tab' : 'btn-secondary';
+    document.getElementById('tab-signup').className = !isLogin ? 'btn-active-tab' : 'btn-secondary';
+    document.getElementById('auth-submit').innerText = isLogin ? 'Entrar' : 'Criar conta';
+    document.getElementById('auth-msg').innerText = '';
+  }
+
+  document.getElementById('auth-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!supabaseClient) return;
+
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const msgEl = document.getElementById('auth-msg');
+    msgEl.innerText = 'Processando...';
+
+    if (modoAuth === 'login') {
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) msgEl.innerText = 'Erro ao entrar: ' + error.message;
+      else msgEl.innerText = '';
+    } else {
+      const { error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) {
+        msgEl.innerText = 'Erro ao cadastrar: ' + error.message;
+      } else {
+        msgEl.innerText = 'Conta criada. Se a confirmacao de e-mail estiver ativa no Supabase, verifique sua caixa de entrada.';
+      }
+    }
+  });
+
+  async function esqueciSenha(event) {
+    if (event) event.preventDefault();
+    if (!supabaseClient) return;
+
+    const email = document.getElementById('auth-email').value.trim();
+    const msgEl = document.getElementById('auth-msg');
+
+    if (!email) {
+      msgEl.innerText = 'Digite seu e-mail no campo acima e clique em "Esqueci minha senha" novamente.';
+      return;
+    }
+
+    msgEl.innerText = 'Enviando...';
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+
+    if (error) {
+      msgEl.innerText = 'Erro ao enviar: ' + error.message;
+    } else {
+      msgEl.innerText = 'Se esse e-mail estiver cadastrado, voce recebera um link para redefinir a senha.';
+    }
+  }
+
+  async function sairConta() {
+    if (!supabaseClient) return;
+    await supabaseClient.auth.signOut();
+  }
+
+  async function aplicarSessao(session) {
+    usuarioAtual = session?.user || null;
+    if (usuarioAtual) {
+      document.getElementById('auth-view').style.display = 'none';
+      document.getElementById('app-view').style.display = 'block';
+      await carregarPerfil();
+      await carregarEscalas();
+    } else {
+      perfilAtual = null;
+      registrosCache = [];
+      document.getElementById('app-view').style.display = 'none';
+      document.getElementById('auth-view').style.display = 'block';
+    }
+  }
+
+  function iniciarAutenticacao() {
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      aplicarSessao(session);
+    });
+
+    supabaseClient.auth.getSession().then(({ data: { session } }) => {
+      aplicarSessao(session);
+    });
+  }
+
+  // --- PERFIL E ESCALA ---
+  function aplicarPresetEscala() {
+    const preset = document.getElementById('select-escala-preset').value;
+    if (preset === 'custom') return;
+    const [t, f] = preset.split('x').map(Number);
+    document.getElementById('input-dias-trabalho').value = t;
+    document.getElementById('input-dias-folga').value = f;
+  }
+
+  function sincronizarSelectPreset(t, f) {
+    const chave = `${t}x${f}`;
+    const select = document.getElementById('select-escala-preset');
+    const existe = Array.from(select.options).some(opt => opt.value === chave);
+    select.value = existe ? chave : 'custom';
+  }
+
+  async function carregarPerfil() {
+    const { data, error } = await supabaseClient
+      .from('perfis')
+      .select('*')
+      .eq('id', usuarioAtual.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Erro ao carregar perfil:', error);
+      return;
+    }
+
+    if (!data) {
+      const { data: novoPerfil } = await supabaseClient
+        .from('perfis')
+        .insert([{ id: usuarioAtual.id, nome_exibicao: '', empresa: 'Atem', dias_trabalho: 10, dias_folga: 5 }])
+        .select()
+        .single();
+      perfilAtual = novoPerfil;
+    } else {
+      perfilAtual = data;
+    }
+
+    renderizarPerfil();
+  }
+
+  function renderizarPerfil() {
+    const { diasTrab, diasFolg } = obterRegraEscala();
+    const nome = perfilAtual?.nome_exibicao || 'Sem nome definido';
+    const empresa = perfilAtual?.empresa || '—';
+    const admissao = perfilAtual?.data_admissao ? formatarDataBR(perfilAtual.data_admissao) : '—';
+    const avatarUrl = perfilAtual?.avatar_url;
+
+    document.getElementById('perfil-nome-exibicao').innerText = nome;
+    document.getElementById('perfil-empresa').innerText = `Empresa: ${empresa}`;
+    document.getElementById('perfil-admissao').innerText = `Admissao: ${admissao}`;
+    document.getElementById('perfil-escala-badge').innerText = `Escala ${diasTrab}x${diasFolg}`;
+    document.getElementById('header-subtitulo').innerText = `${empresa} · Escala ${diasTrab}x${diasFolg}`;
+    document.getElementById('conta-email-atual').innerText = usuarioAtual?.email || '—';
+
+    const avatarBox = document.getElementById('avatar-box');
+    if (avatarUrl) {
+      avatarBox.innerHTML = `<img src="${avatarUrl}" alt="Foto de perfil">`;
+    } else {
+      const iniciais = nome
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(p => p[0].toUpperCase())
+        .join('') || 'DB';
+      avatarBox.innerText = iniciais;
+    }
+
+    document.getElementById('input-nome').value = perfilAtual?.nome_exibicao || '';
+    document.getElementById('input-empresa').value = perfilAtual?.empresa || '';
+    document.getElementById('input-admissao').value = perfilAtual?.data_admissao || '';
+    document.getElementById('input-dias-trabalho').value = diasTrab;
+    document.getElementById('input-dias-folga').value = diasFolg;
+    sincronizarSelectPreset(diasTrab, diasFolg);
+  }
+
+  function alternarEditorPerfil() {
+    const form = document.getElementById('perfil-form');
+    const contaForm = document.getElementById('conta-form');
+    const isOpening = form.style.display === 'none';
+    form.style.display = isOpening ? 'grid' : 'none';
+    if (isOpening) contaForm.style.display = 'none';
+  }
+
+  function alternarEditorConta() {
+    const form = document.getElementById('conta-form');
+    const perfilForm = document.getElementById('perfil-form');
+    const isOpening = form.style.display === 'none';
+    form.style.display = isOpening ? 'grid' : 'none';
+    if (isOpening) {
+      perfilForm.style.display = 'none';
+      document.getElementById('conta-email-atual').innerText = usuarioAtual?.email || '—';
+      document.getElementById('input-novo-email').value = '';
+      document.getElementById('input-nova-senha').value = '';
+      document.getElementById('input-confirma-senha').value = '';
+      document.getElementById('conta-msg').innerText = '';
+    }
+  }
+
+  document.getElementById('perfil-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btn-salvar-perfil');
+    btn.disabled = true;
+    btn.innerText = 'Salvando...';
+
+    const nome_exibicao = document.getElementById('input-nome').value.trim();
+    const empresa = document.getElementById('input-empresa').value.trim();
+    const data_admissao = document.getElementById('input-admissao').value || null;
+    const dias_trabalho = Math.max(1, parseInt(document.getElementById('input-dias-trabalho').value, 10) || 10);
+    const dias_folga = Math.max(1, parseInt(document.getElementById('input-dias-folga').value, 10) || 5);
+    const arquivoFoto = document.getElementById('input-foto').files[0];
+
+    let avatar_url = perfilAtual?.avatar_url || null;
+
+    if (arquivoFoto) {
+      const ext = arquivoFoto.name.split('.').pop().toLowerCase() || 'png';
+      const caminhoArquivo = `${usuarioAtual.id}/avatar.${ext}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from('avatars')
+        .upload(caminhoArquivo, arquivoFoto, { upsert: true });
+
+      if (uploadError) {
+        alert('Erro ao enviar foto: ' + uploadError.message);
+        btn.disabled = false;
+        btn.innerText = 'Salvar perfil';
+        return;
+      }
+
+      const { data: publicData } = supabaseClient.storage
+        .from('avatars')
+        .getPublicUrl(caminhoArquivo);
+
+      avatar_url = `${publicData.publicUrl}?v=${Date.now()}`;
+    }
+
+    const { data, error } = await supabaseClient
+      .from('perfis')
+      .update({
+        nome_exibicao,
+        empresa,
+        data_admissao,
+        dias_trabalho,
+        dias_folga,
+        avatar_url,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', usuarioAtual.id)
+      .select()
+      .single();
+
+    btn.disabled = false;
+    btn.innerText = 'Salvar perfil';
+
+    if (error) {
+      alert('Erro ao salvar perfil: ' + error.message);
+      return;
+    }
+
+    perfilAtual = data;
+    document.getElementById('input-foto').value = '';
+    document.getElementById('perfil-form').style.display = 'none';
+    renderizarPerfil();
+    atualizarInterface(registrosCache);
+    renderizarCalendario();
+  });
+
+  // --- ALTERAR CONTA (email/senha) ---
+  document.getElementById('conta-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!supabaseClient || !usuarioAtual) return;
+
+    const novoEmail = document.getElementById('input-novo-email').value.trim();
+    const novaSenha = document.getElementById('input-nova-senha').value;
+    const confirmaSenha = document.getElementById('input-confirma-senha').value;
+    const msgEl = document.getElementById('conta-msg');
+
+    if (!novoEmail && !novaSenha) {
+      msgEl.innerText = 'Preencha ao menos um campo (e-mail ou senha) para alterar.';
+      return;
+    }
+
+    if (novaSenha && novaSenha.length < 6) {
+      msgEl.innerText = 'A nova senha deve ter no minimo 6 caracteres.';
+      return;
+    }
+
+    if (novaSenha && novaSenha !== confirmaSenha) {
+      msgEl.innerText = 'As senhas nao coincidem.';
+      return;
+    }
+
+    const updates = {};
+    if (novoEmail) updates.email = novoEmail;
+    if (novaSenha) updates.password = novaSenha;
+
+    const btn = document.getElementById('btn-salvar-conta');
+    btn.disabled = true;
+    btn.innerText = 'Salvando...';
+    msgEl.innerText = '';
+
+    const { error } = await supabaseClient.auth.updateUser(updates);
+
+    btn.disabled = false;
+    btn.innerText = 'Salvar';
+
+    if (error) {
+      msgEl.innerText = 'Erro: ' + error.message;
+      return;
+    }
+
+    if (novoEmail && novaSenha) {
+      msgEl.innerText = 'Senha alterada com sucesso. Confirme o novo e-mail na sua caixa de entrada.';
+    } else if (novoEmail) {
+      msgEl.innerText = 'Confirme o novo e-mail na sua caixa de entrada para concluir a troca.';
+    } else {
+      msgEl.innerText = 'Senha alterada com sucesso.';
+    }
+
+    document.getElementById('input-novo-email').value = '';
+    document.getElementById('input-nova-senha').value = '';
+    document.getElementById('input-confirma-senha').value = '';
+  });
+
+  // --- ESCALAS, PREVISÃO DINÂMICA E CALENDÁRIO ---
+  function calcularDias(inicio, fim) {
+    const d1 = new Date(inicio + 'T00:00:00');
+    const d2 = new Date(fim + 'T00:00:00');
+    const diffDays = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays > 0 ? diffDays : 0;
+  }
+
+  function formatarDataBR(dataISO) {
+    const [ano, mes, dia] = dataISO.split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  function dataParaISO(dateObj) {
+    const y = dateObj.getFullYear();
+    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const d = String(dateObj.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  async function carregarEscalas() {
+    const { data, error } = await supabaseClient
+      .from('escalas')
+      .select('*')
+      .order('data_inicio', { ascending: false });
+
+    if (error) {
+      console.error('Erro ao buscar escalas:', error);
+      return;
+    }
+
+    registrosCache = data || [];
+    atualizarInterface(registrosCache);
+    renderizarCalendario();
+  }
+
+  function atualizarInterface(registros) {
+    const { proporcao } = obterRegraEscala();
+    const tbody = document.getElementById('lista-escalas');
+    tbody.innerHTML = '';
+
+    let diasTrabalhados = 0;
+    let diasFolgaGozada = 0;
+
+    if (registros.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">Nenhum registro encontrado.</td></tr>';
+    }
+
+    registros.forEach(item => {
+      if (item.tipo === 'Embarque' || item.tipo === 'Porto') {
+        diasTrabalhados += item.dias_totais;
+      } else if (item.tipo === 'Folga') {
+        diasFolgaGozada += item.dias_totais;
+      }
+
+      let tagClass = 'tag';
+      if (item.tipo === 'Embarque') tagClass += ' tag-embarque';
+      if (item.tipo === 'Folga') tagClass += ' tag-folga';
+      if (item.tipo === 'Atestado') tagClass += ' tag-atestado';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td data-label="Tipo"><span class="${tagClass}">${item.tipo}</span></td>
+        <td data-label="Inicio">${formatarDataBR(item.data_inicio)}</td>
+        <td data-label="Fim">${formatarDataBR(item.data_fim)}</td>
+        <td data-label="Dias" class="num">${item.dias_totais}d</td>
+        <td data-label="Observacao">${item.observacao || '—'}</td>
+        <td>
+          <div class="row-actions">
+            <button class="btn-link" onclick="prepararEdicao(${item.id})">Editar</button>
+            <button class="btn-link danger" onclick="deletarRegistro(${item.id})">Excluir</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    const folgasGeradas = Math.floor(diasTrabalhados * proporcao);
+    const saldo = folgasGeradas - diasFolgaGozada;
+
+    document.getElementById('total-trabalhado').innerText = `${diasTrabalhados}d`;
+    document.getElementById('folgas-geradas').innerText = `${folgasGeradas}d`;
+    document.getElementById('folgas-gozadas').innerText = `${diasFolgaGozada}d`;
+
+    const saldoEl = document.getElementById('saldo-folga');
+    saldoEl.innerText = `${saldo}d`;
+    saldoEl.style.color = saldo < 0 ? 'var(--negative)' : 'var(--positive)';
+  }
+
+  /**
+   * Motor de previsao adaptativa:
+   * Le todos os registros reais, detecta a sequencia atual (se ele estendeu dias de trabalho
+   * ou se ainda faltam dias para fechar o ciclo) e projeta os proximos 180 dias.
+   */
+function gerarMapaCalendarioEPrevisao() {
+    const { diasTrab, diasFolg, proporcao } = obterRegraEscala();
+    const mapaDias = {};
+
+    const ordenados = [...registrosCache].sort((a, b) => a.data_inicio.localeCompare(b.data_inicio));
+
+    let ultimaDataReal = null;
+    ordenados.forEach(reg => {
+      const atual = new Date(reg.data_inicio + 'T00:00:00');
+      const fim = new Date(reg.data_fim + 'T00:00:00');
+      while (atual <= fim) {
+        const iso = dataParaISO(atual);
+        mapaDias[iso] = {
+          tipo: reg.tipo,
+          observacao: reg.observacao,
+          previsto: false
+        };
+        if (!ultimaDataReal || atual > ultimaDataReal) {
+          ultimaDataReal = new Date(atual);
+        }
+        atual.setDate(atual.getDate() + 1);
+      }
+    });
+
+    const bannerEl = document.getElementById('forecast-banner');
+
+    if (!ultimaDataReal) {
+      bannerEl.innerHTML = '<span>Registre um periodo abaixo para gerar a previsao automatica dos proximos dias.</span>';
+      return mapaDias;
+    }
+
+    const ultimoISO = dataParaISO(ultimaDataReal);
+    const ultimoEstado = mapaDias[ultimoISO].tipo;
+
+    let faseAtual = 'PrevTrabalho';
+    let diasRestantesNaFase = diasTrab;
+
+    if (ultimoEstado === 'Folga') {
+      // Conta quantos dias de folga ele ja tirou nesse bloco atual
+      let diasFolgaNoBloco = 0;
+      const cursor = new Date(ultimaDataReal);
+      while (true) {
+        const regDia = mapaDias[dataParaISO(cursor)];
+        if (regDia && regDia.tipo === 'Folga') {
+          diasFolgaNoBloco++;
+          cursor.setDate(cursor.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+
+      if (diasFolgaNoBloco < diasFolg) {
+        faseAtual = 'PrevFolga';
+        diasRestantesNaFase = diasFolg - diasFolgaNoBloco;
+      } else {
+        faseAtual = 'PrevTrabalho';
+        diasRestantesNaFase = diasTrab;
+      }
+    } else {
+      // Conta os dias corridos desde o inicio deste turno atual (parando na ultima Folga real
+      // ou se houver um intervalo vazio maior que 1 dia sem registro)
+      let diasNoTurnoAtual = 0;
+      let diasTrabalhadosNoTurno = 0;
+      const cursor = new Date(ultimaDataReal);
+
+      for (let step = 0; step < 90; step++) {
+        const regDia = mapaDias[dataParaISO(cursor)];
+        if (!regDia) break;
+        if (regDia.tipo === 'Folga') break;
+
+        diasNoTurnoAtual++;
+        if (regDia.tipo === 'Porto' || regDia.tipo === 'Embarque') {
+          diasTrabalhadosNoTurno++;
+        }
+        cursor.setDate(cursor.getDate() - 1);
+      }
+
+      if (diasNoTurnoAtual < diasTrab) {
+        // Ainda faltam dias para fechar os dias do ciclo atual (ex: 10 dias)
+        faseAtual = 'PrevTrabalho';
+        diasRestantesNaFase = diasTrab - diasNoTurnoAtual;
+      } else {
+        // Ja fechou os 10 dias (ou estendeu embarque acima de 10 dias) -> entra na folga
+        faseAtual = 'PrevFolga';
+        diasRestantesNaFase = diasNoTurnoAtual <= diasTrab
+          ? diasFolg
+          : Math.max(diasFolg, Math.round(diasTrabalhadosNoTurno * proporcao));
+      }
+    }
+
+    // Projeta 180 dias para frente a partir do dia seguinte ao ultimo registro real
+    const cursorFrente = new Date(ultimaDataReal);
+    cursorFrente.setDate(cursorFrente.getDate() + 1);
+
+    let inicioProximaFolga = null;
+    let fimProximaFolga = null;
+    let retornoAoTrabalho = null;
+
+    if (faseAtual === 'PrevFolga') {
+      inicioProximaFolga = new Date(cursorFrente);
+    }
+
+    for (let i = 0; i < 180; i++) {
+      const iso = dataParaISO(cursorFrente);
+
+      mapaDias[iso] = {
+        tipo: faseAtual,
+        observacao: 'Previsao',
+        previsto: true
+      };
+
+      if (faseAtual === 'PrevFolga' && inicioProximaFolga && !retornoAoTrabalho) {
+        fimProximaFolga = new Date(cursorFrente);
+      }
+
+      diasRestantesNaFase--;
+      if (diasRestantesNaFase <= 0) {
+        if (faseAtual === 'PrevTrabalho') {
+          faseAtual = 'PrevFolga';
+          diasRestantesNaFase = diasFolg;
+          if (!inicioProximaFolga) {
+            const prox = new Date(cursorFrente);
+            prox.setDate(prox.getDate() + 1);
+            inicioProximaFolga = prox;
+          }
+        } else {
+          faseAtual = 'PrevTrabalho';
+          diasRestantesNaFase = diasTrab;
+          if (inicioProximaFolga && !retornoAoTrabalho) {
+            const ret = new Date(cursorFrente);
+            ret.setDate(ret.getDate() + 1);
+            retornoAoTrabalho = ret;
+          }
+        }
+      }
+
+      cursorFrente.setDate(cursorFrente.getDate() + 1);
+    }
+
+    if (inicioProximaFolga && fimProximaFolga) {
+      const iniStr = formatarDataBR(dataParaISO(inicioProximaFolga));
+      const fimStr = formatarDataBR(dataParaISO(fimProximaFolga));
+      const retStr = retornoAoTrabalho ? formatarDataBR(dataParaISO(retornoAoTrabalho)) : '—';
+      bannerEl.innerHTML = `
+        <span>Proxima folga prevista: <strong>${iniStr} a ${fimStr}</strong> (${diasFolg}d)</span>
+        <span>Retorno previsto ao trabalho: <strong>${retStr}</strong> (Escala ${diasTrab}x${diasFolg})</span>
+      `;
+    }
+
+    return mapaDias;
+  }
+
+  function mudarMes(delta) {
+    mesReferencia = new Date(mesReferencia.getFullYear(), mesReferencia.getMonth() + delta, 1);
+    renderizarCalendario();
+  }
+
+  function renderizarCalendario() {
+    const grid = document.getElementById('cal-grid');
+    const titulo = document.getElementById('cal-titulo');
+    grid.innerHTML = '';
+
+    const ano = mesReferencia.getFullYear();
+    const mes = mesReferencia.getMonth();
+    titulo.innerText = mesReferencia.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+    const mapaDias = gerarMapaCalendarioEPrevisao();
+
+    const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+    diasSemana.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'cal-dow';
+      el.innerText = d;
+      grid.appendChild(el);
+    });
+
+    const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
+    const totalDiasMes = new Date(ano, mes + 1, 0).getDate();
+    const hojeISO = dataParaISO(new Date());
+
+    for (let i = 0; i < primeiroDiaSemana; i++) {
+      const vazio = document.createElement('div');
+      vazio.className = 'cal-day empty';
+      grid.appendChild(vazio);
+    }
+
+    for (let dia = 1; dia <= totalDiasMes; dia++) {
+      const dataAtual = new Date(ano, mes, dia);
+      const iso = dataParaISO(dataAtual);
+      const reg = mapaDias[iso];
+
+      const celula = document.createElement('div');
+      celula.className = 'cal-day';
+      if (iso === hojeISO) celula.classList.add('today');
+
+      let subtexto = '';
+      if (reg) {
+        if (reg.tipo === 'Porto') {
+          celula.classList.add('is-porto');
+          subtexto = reg.observacao ? `Porto · ${reg.observacao}` : 'Porto';
+        } else if (reg.tipo === 'Embarque') {
+          celula.classList.add('is-embarque');
+          subtexto = reg.observacao ? `Embarque · ${reg.observacao}` : 'Embarque';
+        } else if (reg.tipo === 'Folga') {
+          celula.classList.add('is-folga');
+          subtexto = reg.observacao ? `Folga · ${reg.observacao}` : 'Folga';
+        } else if (reg.tipo === 'Atestado') {
+          celula.classList.add('is-atestado');
+          subtexto = reg.observacao ? `Atestado · ${reg.observacao}` : 'Atestado';
+        } else if (reg.tipo === 'PrevTrabalho') {
+          celula.classList.add('is-prev-trabalho');
+          subtexto = 'Prev. Trabalho';
+        } else if (reg.tipo === 'PrevFolga') {
+          celula.classList.add('is-prev-folga');
+          subtexto = 'Prev. Folga';
+        }
+      }
+
+      celula.innerHTML = `
+        <span class="cal-day-num">${dia}</span>
+        <span class="cal-day-label" title="${subtexto}">${subtexto}</span>
+      `;
+      grid.appendChild(celula);
+    }
+  }
+
+  function prepararEdicao(id) {
+    const item = registrosCache.find(r => r.id === id);
+    if (!item) return;
+
+    document.getElementById('edit-id').value = item.id;
+    document.getElementById('tipo').value = item.tipo;
+    document.getElementById('data_inicio').value = item.data_inicio;
+    document.getElementById('data_fim').value = item.data_fim;
+    document.getElementById('observacao').value = item.observacao || '';
+
+    document.getElementById('form-titulo').innerText = 'Editar registro';
+    document.getElementById('btn-salvar').innerText = 'Atualizar';
+    document.getElementById('btn-cancelar').style.display = 'inline-block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function cancelarEdicao() {
+    document.getElementById('escala-form').reset();
+    document.getElementById('edit-id').value = '';
+    document.getElementById('form-titulo').innerText = 'Novo registro';
+    document.getElementById('btn-salvar').innerText = 'Salvar';
+    document.getElementById('btn-cancelar').style.display = 'none';
+  }
+
+  document.getElementById('escala-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!usuarioAtual) return;
+
+    const editId = document.getElementById('edit-id').value;
+    const tipo = document.getElementById('tipo').value;
+    const data_inicio = document.getElementById('data_inicio').value;
+    const data_fim = document.getElementById('data_fim').value;
+    const observacao = document.getElementById('observacao').value;
+
+    const dias_totais = calcularDias(data_inicio, data_fim);
+
+    if (dias_totais <= 0) {
+      alert('A data final deve ser igual ou posterior a data inicial.');
+      return;
+    }
+
+    if (editId) {
+      const { error } = await supabaseClient
+        .from('escalas')
+        .update({ tipo, data_inicio, data_fim, dias_totais, observacao })
+        .eq('id', editId);
+
+      if (error) alert('Erro ao atualizar registro.');
+      else {
+        cancelarEdicao();
+        carregarEscalas();
+      }
+    } else {
+      const { error } = await supabaseClient
+        .from('escalas')
+        .insert([{ tipo, data_inicio, data_fim, dias_totais, observacao, user_id: usuarioAtual.id }]);
+
+      if (error) alert('Erro ao salvar registro.');
+      else {
+        document.getElementById('escala-form').reset();
+        carregarEscalas();
+      }
+    }
+  });
+
+  async function deletarRegistro(id) {
+    if (!confirm('Tem certeza que deseja apagar este registro?')) return;
+
+    const { error } = await supabaseClient
+      .from('escalas')
+      .delete()
+      .eq('id', id);
+
+    if (error) alert('Erro ao excluir.');
+    else carregarEscalas();
+  }
+
+  async function limparTodosRegistros() {
+    if (!supabaseClient || !usuarioAtual) return;
+
+    if (registrosCache.length === 0) {
+      alert('Nao ha registros para limpar.');
+      return;
+    }
+
+    const primeiraConfirmacao = confirm(
+      'ATENCAO: isso vai apagar TODOS os seus registros permanentemente (escalas, folgas, atestados). Deseja continuar?'
+    );
+    if (!primeiraConfirmacao) return;
+
+    const segundaConfirmacao = confirm(
+      'Confirme mais uma vez: apagar todos os ' + registrosCache.length + ' registros? Esta acao NAO pode ser desfeita.'
+    );
+    if (!segundaConfirmacao) return;
+
+    const { error } = await supabaseClient
+      .from('escalas')
+      .delete()
+      .eq('user_id', usuarioAtual.id);
+
+    if (error) {
+      alert('Erro ao limpar registros: ' + error.message);
+      return;
+    }
+
+    cancelarEdicao();
+    await carregarEscalas();
+  }
+</script>
+
+</body>
+</html>
