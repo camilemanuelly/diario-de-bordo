@@ -1285,8 +1285,15 @@
   if (!SUPABASE_URL.startsWith('http')) {
     document.getElementById('auth-msg').innerText =
       'Aviso: cole sua Project URL e sua Anon Key no final do arquivo index.html antes de entrar.';
-  } else {
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} else {
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storage: window.localStorage
+      }
+    });
     iniciarAutenticacao();
   }
 
