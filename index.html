@@ -1077,6 +1077,72 @@
       }
       tbody td[colspan]::before { content: none; }
     }
+
+    @media (max-width: 760px) {
+  body { padding: 20px 14px 100px; }
+
+  .block { padding: 18px; border-radius: 12px; }
+
+  .metrics {
+    grid-template-columns: repeat(2, 1fr);
+    border-radius: 12px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .form-row > div.field:first-of-type,
+  .form-row .field-obs,
+  .form-row .actions {
+    grid-column: 1 / -1;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+
+  .history-header .btn-danger {
+    width: 100%;
+  }
+
+  .table-wrap { overflow-x: visible; }
+  table, thead, tbody, th, td, tr { display: block; }
+  thead { display: none; }
+
+  tbody tr {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(120, 170, 230, 0.12);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+
+  tbody tr:last-child { margin-bottom: 0; }
+
+  tbody td {
+    border: none;
+    padding: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.85rem;
+  }
+
+  tbody td:last-child {
+    justify-content: flex-end;
+    padding-top: 10px;
+    margin-top: 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+}
+
   </style>
 </head>
 <body>
