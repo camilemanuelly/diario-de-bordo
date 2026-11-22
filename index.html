@@ -868,6 +868,62 @@
         padding-top: 10px;
       }
     }
+
+
+  #toast-container {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: min(92vw, 440px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast-erro {
+  background: #1c1117;
+  border: 1px solid var(--negative);
+  color: #fecaca;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.55);
+  font-size: 0.86rem;
+}
+
+.toast-acoes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.toast-retry {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 7px;
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  background: rgba(248, 113, 113, 0.18);
+  color: #fee2e2;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.toast-fechar {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #fca5a5;
+  font-size: 0.9rem;
+}
+
   </style>
 </head>
 <body>
@@ -1221,6 +1277,55 @@
   } else {
     document.getElementById('auth-msg').innerText = 'Não foi possível carregar o cliente do Supabase.';
   }
+
+  function reportarErro({ operacao, mensagem, erro, onRetry }) {
+  console.error(`[${new Date().toISOString()}] [${operacao}]`, erro);
+
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = 'toast-erro';
+  toast.setAttribute('role', 'status');
+
+  const textoEl = document.createElement('span');
+  textoEl.innerHTML = escaparHTML(mensagem);
+
+  const acoesEl = document.createElement('div');
+  acoesEl.className = 'toast-acoes';
+
+  if (typeof onRetry === 'function') {
+    const btnRetry = document.createElement('button');
+    btnRetry.type = 'button';
+    btnRetry.className = 'toast-retry';
+    btnRetry.innerText = 'Tentar novamente';
+    btnRetry.addEventListener('click', async () => {
+      btnRetry.disabled = true;
+      btnRetry.innerText = 'Tentando...';
+      try {
+        await onRetry();
+        toast.remove();
+      } catch (errRetry) {
+        console.error(`[${new Date().toISOString()}] [retry:${operacao}]`, errRetry);
+        btnRetry.disabled = false;
+        btnRetry.innerText = 'Tentar novamente';
+      }
+    });
+    acoesEl.appendChild(btnRetry);
+  }
+
+  const btnFechar = document.createElement('button');
+  btnFechar.type = 'button';
+  btnFechar.className = 'toast-fechar';
+  btnFechar.setAttribute('aria-label', 'Fechar');
+  btnFechar.innerText = '✕';
+  btnFechar.addEventListener('click', () => toast.remove());
+  acoesEl.appendChild(btnFechar);
+
+  toast.appendChild(textoEl);
+  toast.appendChild(acoesEl);
+  container.appendChild(toast);
+}
 
   function escaparHTML(valor) {
     return String(valor ?? '')
@@ -1600,19 +1705,26 @@
     return `${y}-${m}-${d}`;
   }
 
-  async function carregarEscalas() {
-    const { data, error } = await supabaseClient
-      .from('escalas')
-      .select('*')
-      .order('data_inicio', { ascending: false });
+async function carregarEscalas() {
+    try {
+      const { data, error } = await supabaseClient
+        .from('escalas')
+        .select('*')
+        .order('data_inicio', { ascending: false });
 
-    if (error) {
-      console.error('Erro ao buscar escalas:', error);
-      return;
+      if (error) throw error;
+
+      registrosCache = data || [];
+      atualizarInterface(registrosCache);
+      renderizarCalendario();
+    } catch (err) {
+      reportarErro({
+        operacao: 'carregar_escalas',
+        mensagem: 'Não foi possível carregar os registros de escala.',
+        erro: err,
+        onRetry: carregarEscalas
+      });
     }
-    registrosCache = data || [];
-    atualizarInterface(registrosCache);
-    renderizarCalendario();
   }
 
   function atualizarInterface(registros) {
@@ -1857,6 +1969,30 @@
     renderizarPerfil();
   }
 
+  async function executarSalvamentoEscala(payload, editId) {
+    try {
+      const query = editId
+        ? supabaseClient.from('escalas').update(payload).eq('id', editId)
+        : supabaseClient.from('escalas').insert([{ ...payload, user_id: usuarioAtual.id }]);
+
+      const { error } = await query;
+      if (error) throw error;
+
+      fecharModalRegistro();
+      await carregarEscalas();
+    } catch (err) {
+      reportarErro({
+        operacao: editId ? 'atualizar_escala' : 'inserir_escala',
+        mensagem: editId
+          ? 'Não foi possível atualizar o registro. Seus dados continuam no formulário.'
+          : 'Não foi possível salvar o registro. Seus dados continuam no formulário.',
+        erro: err,
+        onRetry: () => executarSalvamentoEscala(payload, editId)
+      });
+      throw err;
+    }
+  }
+
   document.getElementById('escala-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!usuarioAtual) return;
@@ -1877,34 +2013,77 @@
       return;
     }
 
-    if (editId) {
-      const { error } = await supabaseClient.from('escalas').update({ tipo, data_inicio, data_fim, dias_totais, observacao }).eq('id', editId);
-      if (!error) {
-        fecharModalRegistro();
-        carregarEscalas();
-      }
-    } else {
-      const { error } = await supabaseClient.from('escalas').insert([{ tipo, data_inicio, data_fim, dias_totais, observacao, user_id: usuarioAtual.id }]);
-      if (!error) {
-        fecharModalRegistro();
-        carregarEscalas();
-      }
+    const btnSalvar = document.getElementById('btn-salvar');
+    const textoOriginalBtn = btnSalvar.innerText;
+    btnSalvar.disabled = true;
+    btnSalvar.innerText = 'Salvando...';
+
+    try {
+      await executarSalvamentoEscala(
+        { tipo, data_inicio, data_fim, dias_totais, observacao },
+        editId || null
+      );
+    } catch (_) {
+      // Erro já tratado via toast; modal continua aberto
+    } finally {
+      btnSalvar.disabled = false;
+      btnSalvar.innerText = textoOriginalBtn;
     }
   });
 
+async function executarExclusao(id) {
+    try {
+      const { error } = await supabaseClient.from('escalas').delete().eq('id', id);
+      if (error) throw error;
+      await carregarEscalas();
+    } catch (err) {
+      reportarErro({
+        operacao: 'deletar_registro',
+        mensagem: 'Não foi possível excluir o registro.',
+        erro: err,
+        onRetry: () => executarExclusao(id)
+      });
+      throw err;
+    }
+  }
+
   async function deletarRegistro(id) {
     if (!confirm('Tem certeza que deseja apagar este registro?')) return;
-    const { error } = await supabaseClient.from('escalas').delete().eq('id', id);
-    if (!error) carregarEscalas();
+    try {
+      await executarExclusao(id);
+    } catch (_) {
+      // Erro já tratado e exibido via toast em executarExclusao
+    }
+  }
+
+async function executarLimpezaRegistros() {
+    try {
+      const { error } = await supabaseClient.from('escalas').delete().eq('user_id', usuarioAtual.id);
+      if (error) throw error;
+      cancelarEdicao();
+      await carregarEscalas();
+    } catch (err) {
+      reportarErro({
+        operacao: 'limpar_todos_registros',
+        mensagem: 'Não foi possível apagar todos os registros.',
+        erro: err,
+        onRetry: executarLimpezaRegistros
+      });
+      throw err;
+    }
   }
 
   async function limparTodosRegistros() {
     if (!supabaseClient || !usuarioAtual || registrosCache.length === 0) return;
     if (!confirm('Apagar TODOS os seus registros permanentemente?')) return;
-    const { error } = await supabaseClient.from('escalas').delete().eq('user_id', usuarioAtual.id);
-    if (!error) { cancelarEdicao(); carregarEscalas(); }
+    try {
+      await executarLimpezaRegistros();
+    } catch (_) {
+      // Erro já tratado e exibido via toast em executarLimpezaRegistros
+    }
   }
-</script>
 
+</script>
+<div id="toast-container"></div>
 </body>
 </html>
