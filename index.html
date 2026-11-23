@@ -581,6 +581,31 @@
       border: 1px dashed rgba(134, 239, 172, 0.8) !important;
     }
 
+    .cal-day.is-atestado {
+      background: rgba(250, 204, 21, 0.28) !important;
+      border-color: rgba(250, 204, 21, 0.85) !important;
+    }
+
+    .cal-day-num {
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1.1;
+    }
+
+    .cal-day-label {
+      font-size: 0.65rem;
+      line-height: 1.15;
+      display: block;
+      margin-top: 2px;
+      word-break: break-word;
+    }
+
+    .cal-day button {
+      font-size: 0.62rem !important;
+      padding: 1px 5px !important;
+      margin-top: 3px !important;
+    }
+
     .field label { display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 7px; font-weight: 500; }
 
     .field input, .field select {
@@ -2310,16 +2335,16 @@ const ordenados = [...registrosCache].sort((a, b) => {
       }
     }
 
-  const mapaObj = {};
-      for (const [isoKey, valor] of mapa.entries()) {
-        mapaObj[isoKey] = {
-          tipo: valor.tipo,
-          observacao: valor.registro?.observacao || '',
-          real: Boolean(valor.real),
-          registro: valor.registro || null
+const mapaObj = {};
+    for (const [isoKey, valor] of mapa.entries()) {
+      mapaObj[isoKey] = {
+        tipo: valor.tipo,
+        observacao: valor.observacao !== undefined ? valor.observacao : (valor.registro?.observacao || ''),
+        real: Boolean(valor.real),
+        temAtestado: Boolean(valor.temAtestado || valor.tipo === 'Atestado'),
+        registro: valor.registro || null
       };
     }
-
     atualizarAvisoFolgaPendente(hojeIso, previsaoInicioFolga);
 
   return mapaObj;
@@ -2461,7 +2486,7 @@ const hojeIsoRef = obterHojeISO();
         abrirModalRegistro(iso);
       });
 
-      let subtexto = '';
+let subtexto = '';
 
       if (reg) {
         const mapaClasse = {
@@ -2472,8 +2497,12 @@ const hojeIsoRef = obterHojeISO();
           PrevTrabalho: 'is-prev-trabalho',
           PrevFolga: 'is-prev-folga'
         };
-        if (mapaClasse[reg.tipo]) celula.classList.add(mapaClasse[reg.tipo]);
-        if (reg.temAtestado) celula.classList.add('is-atestado');
+
+        if (reg.tipo === 'Atestado' || reg.temAtestado) {
+          celula.classList.add('is-atestado');
+        } else if (mapaClasse[reg.tipo]) {
+          celula.classList.add(mapaClasse[reg.tipo]);
+        }
 
         subtexto = reg.tipo === 'PrevTrabalho'
           ? 'Prev. Trabalho'
