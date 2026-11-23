@@ -551,14 +551,35 @@
       gap: 4px;
     }
 
-    .cal-day.is-porto { background: rgba(129, 140, 248, 0.16); }
-    .cal-day.is-embarque { background: rgba(96, 165, 250, 0.16); }
-    .cal-day.is-folga { background: rgba(74, 222, 128, 0.13); }
-    .cal-day.is-atestado { background: rgba(250, 204, 21, 0.12); }
-    .cal-day.is-prev-trabalho { background: rgba(96, 165, 250, 0.08); }
-    .cal-day.is-prev-folga { background: rgba(74, 222, 128, 0.07); }
-    .cal-day-num { font-weight: 600; color: #f1f5f9; }
-    .cal-day-label { font-size: 0.67rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-day.is-porto {
+      background: rgba(129, 140, 248, 0.25) !important;
+      border-color: rgba(129, 140, 248, 0.75) !important;
+    }
+
+    .cal-day.is-embarque {
+      background: rgba(96, 165, 250, 0.25) !important;
+      border-color: rgba(96, 165, 250, 0.75) !important;
+    }
+
+    .cal-day.is-folga {
+      background: rgba(74, 222, 128, 0.22) !important;
+      border-color: rgba(74, 222, 128, 0.75) !important;
+    }
+
+    .cal-day.is-atestado {
+      background: rgba(250, 204, 21, 0.24) !important;
+      border-color: rgba(250, 204, 21, 0.8) !important;
+    }
+
+    .cal-day.is-prev-trabalho {
+      background: rgba(147, 197, 253, 0.08) !important;
+      border: 1px dashed rgba(147, 197, 253, 0.8) !important;
+    }
+
+    .cal-day.is-prev-folga {
+      background: rgba(134, 239, 172, 0.08) !important;
+      border: 1px dashed rgba(134, 239, 172, 0.8) !important;
+    }
 
     .field label { display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 7px; font-weight: 500; }
 
@@ -776,7 +797,79 @@
     .btn-link { height: auto; padding: 5px 9px; background: transparent; color: #94a3b8; font-size: 0.8rem; }
     .btn-link.danger:hover { color: #f87171; }
 
+    #toast-container {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: calc(100% - 48px);
+  max-width: 380px;
+  pointer-events: none;
+}
+
+.toast-item {
+  pointer-events: auto;
+  background: linear-gradient(180deg, #1b1726 0%, #120f1c 100%);
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  border-left: 4px solid var(--negative);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.8);
+  color: #f8fafc;
+}
+
+.toast-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.toast-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fecaca;
+}
+
+.toast-close {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: #e2e8f0;
+}
+
+.toast-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.toast-retry {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: rgba(248, 113, 113, 0.18);
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  color: #fecaca;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
     @media (max-width: 760px) {
+
       body { padding: 20px 14px 110px; }
       .block { padding: 18px; border-radius: 12px; }
       .metrics { grid-template-columns: repeat(2, 1fr); }
@@ -869,64 +962,90 @@
       }
     }
 
+#toast-container {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: min(92vw, 400px);
+      pointer-events: none;
+    }
 
-  #toast-container {
-  position: fixed;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-  width: min(92vw, 440px);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+    .toast-item {
+      pointer-events: auto;
+      background: linear-gradient(180deg, #1b1726 0%, #120f1c 100%);
+      border: 1px solid rgba(248, 113, 113, 0.45);
+      border-left: 4px solid var(--negative);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.8);
+      color: #f8fafc;
+    }
 
-.toast-erro {
-  background: #1c1117;
-  border: 1px solid var(--negative);
-  color: #fecaca;
-  border-radius: 12px;
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.55);
-  font-size: 0.86rem;
-}
+    .toast-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
 
-.toast-acoes {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
+    .toast-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fecaca;
+    }
 
-.toast-retry {
-  height: 30px;
-  padding: 0 10px;
-  border-radius: 7px;
-  border: 1px solid rgba(248, 113, 113, 0.45);
-  background: rgba(248, 113, 113, 0.18);
-  color: #fee2e2;
-  font-size: 0.78rem;
-  font-weight: 600;
-}
+    .toast-close {
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #cbd5e1;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
 
-.toast-fechar {
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: #fca5a5;
-  font-size: 0.9rem;
-}
+    .toast-message {
+      margin-top: 6px;
+      font-size: 0.82rem;
+      color: #e2e8f0;
+    }
+
+    .toast-actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .toast-retry {
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 8px;
+      background: rgba(248, 113, 113, 0.18);
+      border: 1px solid rgba(248, 113, 113, 0.45);
+      color: #fecaca;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 760px) {
+      #toast-container {
+        top: 14px;
+        left: 14px;
+        right: 14px;
+        width: auto;
+      }
+    }
 
   </style>
 </head>
 <body>
+
+<div id="toast-container" role="region" aria-live="assertive" aria-label="Avisos do sistema"></div>
 
 <div class="page">
   <section id="auth-view" class="auth-box">
@@ -1114,9 +1233,22 @@
       </form>
     </section>
 
+    <div id="aviso-folga-pendente" style="display:none; margin-bottom:16px; padding:14px 16px; border-radius:12px; background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.45); color:#fde68a;">
+      <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+        <div>
+          <strong style="display:block; font-size:0.92rem; color:#fef3c7;">A folga prevista já chegou — você pegou folga ou continua trabalhando?</strong>
+          <span id="aviso-folga-texto" style="font-size:0.82rem; color:#fde68a;">Enquanto você não lançar a folga, a previsão continua sendo atualizada automaticamente.</span>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" id="btn-marcar-folga-hoje" style="height:34px; padding:0 12px; border-radius:8px; background:rgba(52,211,153,0.2); border:1px solid rgba(52,211,153,0.5); color:#a7f3d0; font-weight:600; cursor:pointer;">Marcar Folga hoje</button>
+          <button type="button" id="btn-dispensar-aviso-folga" style="height:34px; padding:0 12px; border-radius:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.18); color:#e2e8f0; font-size:0.8rem; cursor:pointer;">Continuo trabalhando</button>
+        </div>
+      </div>
+    </div>
+
     <section class="metrics">
       <div class="metric">
-        <div class="metric-label">Tempo de bordo</div>
+        <div class="metric-label">Tempo total de bordo</div>
         <div class="metric-value" id="total-trabalhado">0d</div>
       </div>
       <div class="metric">
@@ -1141,9 +1273,6 @@
           <span class="cal-month-title" id="cal-titulo"></span>
           <button type="button" class="btn-secondary" onclick="mudarMes(1)">Próximo</button>
         </div>
-      </div>
-      <div class="forecast-banner" id="forecast-banner">
-        <span>Clique em "+ Novo registro" para lançar um período e gerar sua previsão automática.</span>
       </div>
       <div class="cal-legend">
         <span class="legend-item"><span class="dot dot-porto"></span> Porto</span>
@@ -1278,53 +1407,85 @@
     document.getElementById('auth-msg').innerText = 'Não foi possível carregar o cliente do Supabase.';
   }
 
-  function reportarErro({ operacao, mensagem, erro, onRetry }) {
-  console.error(`[${new Date().toISOString()}] [${operacao}]`, erro);
+function traduzirErroSupabase(erro, mensagemPadrao) {
+  const texto = String(erro?.message || erro?.details || erro || '');
+  const codigo = String(erro?.code || '');
 
+  if (codigo === '23P01' || texto.includes('excl_escalas_sem_sobreposicao_operacional')) {
+    return 'Já existe um registro de Porto, Embarque ou Folga nessas datas. Ajuste o período ou edite o lançamento existente.';
+  }
+  if (texto.includes('chk_escalas_datas_ordenadas') || texto.includes('anterior à data inicial')) {
+    return 'A data final deve ser igual ou posterior à data inicial.';
+  }
+  if (texto.includes('chk_escalas_dias_totais_positivo')) {
+    return 'A duração do período deve ser de pelo menos 1 dia.';
+  }
+  if (texto.includes('chk_perfis_dias_trabalho_range') || texto.includes('chk_perfis_dias_folga_range')) {
+    return 'Os dias de trabalho e de folga da escala devem ficar entre 1 e 365.';
+  }
+  if (texto.includes('chk_perfis_posto_valido')) {
+    return 'Patente ou função inválida selecionada.';
+  }
+  if (texto.toLowerCase().includes('maximum allowed size') || texto.toLowerCase().includes('payload too large')) {
+    return 'A imagem ultrapassa o limite máximo de 2 MB.';
+  }
+  if (texto.toLowerCase().includes('mime type') || texto.toLowerCase().includes('invalid file type')) {
+    return 'Formato de imagem inválido. Use JPEG, PNG ou WebP.';
+  }
+  if (codigo === '42501' || texto.toLowerCase().includes('row-level security')) {
+    return 'Sem permissão para realizar esta operação. Faça login novamente.';
+  }
+
+  return erro?.message || mensagemPadrao || 'Ocorreu um erro inesperado.';
+}
+
+function registrarErroComToast({ titulo, contexto, erro, mensagemPadrao, retryFn }) {
+  console.error(`[${new Date().toISOString()}] [${contexto}]`, erro);
+  const msg = traduzirErroSupabase(erro, mensagemPadrao);
+  mostrarToastErro(titulo || 'Erro', msg, retryFn);
+}
+
+function mostrarToastErro(titulo, mensagem, retryFn) {
   const container = document.getElementById('toast-container');
   if (!container) return;
 
-  const toast = document.createElement('div');
-  toast.className = 'toast-erro';
-  toast.setAttribute('role', 'status');
+  const toastEl = document.createElement('div');
+  toastEl.className = 'toast-item';
 
-  const textoEl = document.createElement('span');
-  textoEl.innerHTML = escaparHTML(mensagem);
+  const acoesHtml = typeof retryFn === 'function'
+    ? `<div class="toast-actions"><button type="button" class="toast-retry">Tentar novamente</button></div>`
+    : '';
 
-  const acoesEl = document.createElement('div');
-  acoesEl.className = 'toast-acoes';
+  toastEl.innerHTML = `
+    <div class="toast-header">
+      <div class="toast-title">${escaparHTML(titulo)}</div>
+      <button type="button" class="toast-close" aria-label="Fechar aviso">✕</button>
+    </div>
+    <div class="toast-message">${escaparHTML(mensagem)}</div>
+    ${acoesHtml}
+  `;
 
-  if (typeof onRetry === 'function') {
-    const btnRetry = document.createElement('button');
-    btnRetry.type = 'button';
-    btnRetry.className = 'toast-retry';
-    btnRetry.innerText = 'Tentar novamente';
-    btnRetry.addEventListener('click', async () => {
-      btnRetry.disabled = true;
-      btnRetry.innerText = 'Tentando...';
+  toastEl.querySelector('.toast-close')?.addEventListener('click', () => {
+    toastEl.remove();
+  });
+
+  const retryBtn = toastEl.querySelector('.toast-retry');
+  if (retryBtn && typeof retryFn === 'function') {
+    retryBtn.addEventListener('click', async () => {
+      retryBtn.disabled = true;
+      const textoOriginal = retryBtn.innerText;
+      retryBtn.innerText = 'Tentando...';
       try {
-        await onRetry();
-        toast.remove();
-      } catch (errRetry) {
-        console.error(`[${new Date().toISOString()}] [retry:${operacao}]`, errRetry);
-        btnRetry.disabled = false;
-        btnRetry.innerText = 'Tentar novamente';
+        await retryFn();
+        toastEl.remove();
+      } catch (_err) {
+        retryBtn.disabled = false;
+        retryBtn.innerText = textoOriginal;
       }
     });
-    acoesEl.appendChild(btnRetry);
   }
 
-  const btnFechar = document.createElement('button');
-  btnFechar.type = 'button';
-  btnFechar.className = 'toast-fechar';
-  btnFechar.setAttribute('aria-label', 'Fechar');
-  btnFechar.innerText = '✕';
-  btnFechar.addEventListener('click', () => toast.remove());
-  acoesEl.appendChild(btnFechar);
-
-  toast.appendChild(textoEl);
-  toast.appendChild(acoesEl);
-  container.appendChild(toast);
+  container.appendChild(toastEl);
 }
 
   function escaparHTML(valor) {
@@ -1344,6 +1505,60 @@
     } catch {
       return null;
     }
+  }
+
+  const LIMITE_AVATAR_BYTES = 2097152; // 2 MB
+
+  async function prepararImagemAvatar(arquivo) {
+    if (!arquivo) return null;
+
+    const tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!tiposPermitidos.includes(arquivo.type)) {
+      throw new Error('Formato de imagem inválido. Use JPEG, PNG ou WebP.');
+    }
+
+    const bitmap = await createImageBitmap(arquivo);
+    const maxDim = 800;
+    let largura = bitmap.width;
+    let altura = bitmap.height;
+
+    if (largura > maxDim || altura > maxDim) {
+      if (largura >= altura) {
+        altura = Math.round((altura * maxDim) / largura);
+        largura = maxDim;
+      } else {
+        largura = Math.round((largura * maxDim) / altura);
+        altura = maxDim;
+      }
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, largura);
+    canvas.height = Math.max(1, altura);
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    if (typeof bitmap.close === 'function') bitmap.close();
+
+    const formatoSaida = arquivo.type === 'image/webp' ? 'image/webp' : 'image/jpeg';
+    const extensaoSaida = formatoSaida === 'image/webp' ? 'webp' : 'jpg';
+
+    let qualidade = 0.86;
+    let blob = await new Promise((resolve) =>
+      canvas.toBlob(resolve, formatoSaida, qualidade)
+    );
+
+    while (blob && blob.size > LIMITE_AVATAR_BYTES && qualidade > 0.45) {
+      qualidade = Number((qualidade - 0.1).toFixed(2));
+      blob = await new Promise((resolve) =>
+        canvas.toBlob(resolve, formatoSaida, qualidade)
+      );
+    }
+
+    if (!blob || blob.size > LIMITE_AVATAR_BYTES) {
+      throw new Error('Não foi possível reduzir a imagem para até 2 MB. Escolha uma foto menor.');
+    }
+
+    return { blob, ext: extensaoSaida, contentType: formatoSaida };
   }
 
   function obterRegraEscala() {
@@ -1598,22 +1813,51 @@
 
     let avatar_url = perfilAtual?.avatar_url || null;
 
-    if (arquivoFoto) {
-      const ext = arquivoFoto.name.split('.').pop().toLowerCase() || 'png';
-      const caminhoArquivo = `${usuarioAtual.id}/avatar.${ext}`;
-      const { error: uploadError } = await supabaseClient.storage
-        .from('avatars')
-        .upload(caminhoArquivo, arquivoFoto, { upsert: true });
+if (arquivoFoto) {
+      try {
+        const imagemPronta = await prepararImagemAvatar(arquivoFoto);
+        const caminhoArquivo = `${usuarioAtual.id}/avatar.${imagemPronta.ext}`;
 
-      if (uploadError) {
-        alert('Erro ao enviar foto: ' + uploadError.message);
+        const candidatosAntigos = ['png', 'jpg', 'jpeg', 'webp']
+          .filter((e) => e !== imagemPronta.ext)
+          .map((e) => `${usuarioAtual.id}/avatar.${e}`);
+
+        if (candidatosAntigos.length > 0) {
+          await supabaseClient.storage.from('avatars').remove(candidatosAntigos);
+        }
+
+        const { error: uploadError } = await supabaseClient.storage
+          .from('avatars')
+          .upload(caminhoArquivo, imagemPronta.blob, {
+            upsert: true,
+            contentType: imagemPronta.contentType
+          });
+
+        if (uploadError) {
+          registrarErroComToast({
+            titulo: 'Falha ao enviar foto',
+            contexto: 'upload_avatar',
+            erro: uploadError,
+            mensagemPadrao: 'Não foi possível enviar a foto de perfil.'
+          });
+          btn.disabled = false;
+          btn.innerText = 'Salvar perfil';
+          return;
+        }
+
+        const { data: publicData } = supabaseClient.storage.from('avatars').getPublicUrl(caminhoArquivo);
+        avatar_url = `${publicData.publicUrl}?v=${Date.now()}`;
+      } catch (erroImagem) {
+        registrarErroComToast({
+          titulo: 'Imagem não suportada',
+          contexto: 'preparar_avatar',
+          erro: erroImagem,
+          mensagemPadrao: 'Escolha uma imagem válida de até 2 MB.'
+        });
         btn.disabled = false;
         btn.innerText = 'Salvar perfil';
         return;
       }
-
-      const { data: publicData } = supabaseClient.storage.from('avatars').getPublicUrl(caminhoArquivo);
-      avatar_url = `${publicData.publicUrl}?v=${Date.now()}`;
     }
 
     const payload = {
@@ -1706,26 +1950,27 @@
   }
 
 async function carregarEscalas() {
-    try {
-      const { data, error } = await supabaseClient
-        .from('escalas')
-        .select('*')
-        .order('data_inicio', { ascending: false });
+  try {
+    const { data, error } = await supabaseClient
+      .from('escalas')
+      .select('*')
+      .order('data_inicio', { ascending: false });
 
-      if (error) throw error;
+    if (error) throw error;
 
-      registrosCache = data || [];
-      atualizarInterface(registrosCache);
-      renderizarCalendario();
-    } catch (err) {
-      reportarErro({
-        operacao: 'carregar_escalas',
-        mensagem: 'Não foi possível carregar os registros de escala.',
-        erro: err,
-        onRetry: carregarEscalas
-      });
-    }
+    registrosCache = data || [];
+    atualizarInterface(registrosCache);
+    renderizarCalendario();
+  } catch (erro) {
+    registrarErroComToast({
+      titulo: 'Falha ao carregar escalas',
+      contexto: 'load_escalas',
+      erro,
+      mensagemPadrao: 'Não foi possível atualizar a lista de escalas.',
+      retryFn: carregarEscalas
+    });
   }
+}
 
   function atualizarInterface(registros) {
     const { proporcao } = obterRegraEscala();
@@ -1770,125 +2015,400 @@ async function carregarEscalas() {
     saldoEl.style.color = saldo < 0 ? 'var(--negative)' : 'var(--positive)';
   }
 
-  function gerarMapaCalendarioEPrevisao() {
-    const { diasTrab, diasFolg, proporcao } = obterRegraEscala();
-    const mapaDias = {};
-    const ordenados = [...registrosCache].sort((a, b) => a.data_inicio.localeCompare(b.data_inicio));
-    let ultimaDataReal = null;
+  const CHAVE_AVISO_DISPENSADO = 'diario_bordo_aviso_folga_dispensado';
+  const CHAVE_CONTINUA_TRAB = 'diario_bordo_continua_trab_hoje';
 
-    ordenados.forEach(reg => {
-      const atual = new Date(reg.data_inicio + 'T00:00:00');
-      const fim = new Date(reg.data_fim + 'T00:00:00');
-      while (atual <= fim) {
-        const iso = dataParaISO(atual);
-        mapaDias[iso] = { tipo: reg.tipo, observacao: reg.observacao };
-        if (!ultimaDataReal || atual > ultimaDataReal) ultimaDataReal = new Date(atual);
-        atual.setDate(atual.getDate() + 1);
-      }
+  let avisoFolgaDispensadoData = localStorage.getItem(CHAVE_AVISO_DISPENSADO) || null;
+  let continuarTrabalhandoConfirmadoHoje = localStorage.getItem(CHAVE_CONTINUA_TRAB) || null;
+
+  function ehDiaApenasAtestado(mapaReal, isoDate) {
+    const lista = mapaReal.get(isoDate);
+    if (!lista || lista.length === 0) return false;
+    return lista.every((item) => item.tipo === 'Atestado');
+  }
+
+  function pegarTipoOperacionalDoDia(mapaReal, isoDate) {
+    const lista = mapaReal.get(isoDate);
+    if (!lista || lista.length === 0) return null;
+    const operacional = lista.find((item) => item.tipo !== 'Atestado');
+    return operacional ? operacional.tipo : null;
+  }
+
+  function parseISODateLocal(isoStr) {
+    if (!isoStr || typeof isoStr !== 'string') return new Date();
+    const partes = isoStr.split('-').map(Number);
+    if (partes.length !== 3 || partes.some(Number.isNaN)) return new Date();
+    return new Date(partes[0], partes[1] - 1, partes[2]);
+  }
+
+  function formatISODateLocal(dateObj) {
+    const ano = dateObj.getFullYear();
+    const mes = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const dia = String(dateObj.getDate()).padStart(2, '0');
+    return `${ano}-${mes}-${dia}`;
+  }
+
+  function formatarDataBR(isoStr) {
+    if (!isoStr || typeof isoStr !== 'string') return '';
+    const partes = isoStr.split('-');
+    if (partes.length !== 3) return isoStr;
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  }
+
+  function obterHojeISO() {
+      const agora = new Date();
+      const ano = agora.getFullYear();
+      const mes = String(agora.getMonth() + 1).padStart(2, '0');
+      const dia = String(agora.getDate()).padStart(2, '0');
+      return `${ano}-${mes}-${dia}`;
+    }
+
+  function gerarMapaCalendarioEPrevisao() {
+    const mapa = new Map();
+    const mapaReal = new Map();
+    const hojeIso = obterHojeISO();
+    const diasTrab = Math.max(1, parseInt(perfilAtual?.dias_trabalho, 10) || 10);
+    const diasFolg = Math.max(1, parseInt(perfilAtual?.dias_folga, 10) || 5);
+
+const ordenados = [...registrosCache].sort((a, b) => {
+      if (a.data_inicio !== b.data_inicio) return a.data_inicio.localeCompare(b.data_inicio);
+      return (a.id || 0) - (b.id || 0);
     });
 
-    const bannerEl = document.getElementById('forecast-banner');
-    if (!ultimaDataReal) {
-      bannerEl.innerHTML = '<span>Clique em "+ Novo registro" para lançar um período e gerar sua previsão automática.</span>';
-      return mapaDias;
-    }
+    let ultimaDataReal = null;
 
-    const ultimoEstado = mapaDias[dataParaISO(ultimaDataReal)].tipo;
-    let faseAtual = 'PrevTrabalho';
-    let diasRestantesNaFase = diasTrab;
+    for (const reg of ordenados) {
+      let cur = parseISODateLocal(reg.data_inicio);
+      const fim = parseISODateLocal(reg.data_fim);
+      while (cur <= fim) {
+        const iso = formatISODateLocal(cur);
+        if (!mapaReal.has(iso)) mapaReal.set(iso, []);
+        mapaReal.get(iso).push(reg);
 
-    if (ultimoEstado === 'Folga') {
-      let diasFolgaNoBloco = 0;
-      const cursor = new Date(ultimaDataReal);
-      while (mapaDias[dataParaISO(cursor)]?.tipo === 'Folga') {
-        diasFolgaNoBloco++;
-        cursor.setDate(cursor.getDate() - 1);
-      }
-      if (diasFolgaNoBloco < diasFolg) {
-        faseAtual = 'PrevFolga';
-        diasRestantesNaFase = diasFolg - diasFolgaNoBloco;
-      }
-    } else {
-      let diasNoTurnoAtual = 0;
-      let diasTrabalhadosNoTurno = 0;
-      const cursor = new Date(ultimaDataReal);
-      for (let step = 0; step < 90; step++) {
-        const regDia = mapaDias[dataParaISO(cursor)];
-        if (!regDia || regDia.tipo === 'Folga') break;
-        diasNoTurnoAtual++;
-        if (regDia.tipo === 'Porto' || regDia.tipo === 'Embarque') diasTrabalhadosNoTurno++;
-        cursor.setDate(cursor.getDate() - 1);
-      }
-      if (diasNoTurnoAtual < diasTrab) {
-        faseAtual = 'PrevTrabalho';
-        diasRestantesNaFase = diasTrab - diasNoTurnoAtual;
-      } else {
-        faseAtual = 'PrevFolga';
-        diasRestantesNaFase = diasNoTurnoAtual <= diasTrab ? diasFolg : Math.max(diasFolg, Math.round(diasTrabalhadosNoTurno * proporcao));
+        if (!mapa.has(iso)) {
+          mapa.set(iso, { tipo: reg.tipo, real: true, registro: reg });
+        } else if (reg.tipo !== 'Atestado') {
+          mapa.set(iso, { tipo: reg.tipo, real: true, registro: reg });
+        }
+
+        if (!ultimaDataReal || iso > ultimaDataReal) {
+          ultimaDataReal = iso;
+        }
+        cur.setDate(cur.getDate() + 1);
       }
     }
 
-    const cursorFrente = new Date(ultimaDataReal);
-    cursorFrente.setDate(cursorFrente.getDate() + 1);
-    let inicioProximaFolga = faseAtual === 'PrevFolga' ? new Date(cursorFrente) : null;
-    let fimProximaFolga = null;
-    let retornoAoTrabalho = null;
+    let previsaoInicioFolga = null;
+    let previsaoFimFolga = null;
 
-    for (let i = 0; i < 180; i++) {
-      const iso = dataParaISO(cursorFrente);
-      mapaDias[iso] = { tipo: faseAtual, observacao: 'Previsao' };
-      if (faseAtual === 'PrevFolga' && inicioProximaFolga && !retornoAoTrabalho) fimProximaFolga = new Date(cursorFrente);
-      diasRestantesNaFase--;
-      if (diasRestantesNaFase <= 0) {
-        if (faseAtual === 'PrevTrabalho') {
-          faseAtual = 'PrevFolga';
-          diasRestantesNaFase = diasFolg;
-          if (!inicioProximaFolga) {
-            const prox = new Date(cursorFrente);
-            prox.setDate(prox.getDate() + 1);
-            inicioProximaFolga = prox;
-          }
-        } else {
-          faseAtual = 'PrevTrabalho';
-          diasRestantesNaFase = diasTrab;
-          if (inicioProximaFolga && !retornoAoTrabalho) {
-            const ret = new Date(cursorFrente);
-            ret.setDate(ret.getDate() + 1);
-            retornoAoTrabalho = ret;
+    if (ultimaDataReal) {
+      let tipoUltimo = pegarTipoOperacionalDoDia(mapaReal, ultimaDataReal);
+
+      // Se o último dia foi apenas Atestado, busca o último dia operacional anterior
+      if (!tipoUltimo) {
+        let cursorBusca = parseISODateLocal(ultimaDataReal);
+        for (let i = 0; i < 365; i++) {
+          cursorBusca.setDate(cursorBusca.getDate() - 1);
+          const isoBusca = formatISODateLocal(cursorBusca);
+          const tipoBusca = pegarTipoOperacionalDoDia(mapaReal, isoBusca);
+          if (tipoBusca) {
+            tipoUltimo = tipoBusca;
+            break;
           }
         }
       }
-      cursorFrente.setDate(cursorFrente.getDate() + 1);
+
+      if (tipoUltimo === 'Folga') {
+        let diasFolgaJaCumpridos = 0;
+        let cursor = parseISODateLocal(ultimaDataReal);
+        while (true) {
+          const iso = formatISODateLocal(cursor);
+          if (ehDiaApenasAtestado(mapaReal, iso)) {
+            cursor.setDate(cursor.getDate() - 1);
+            continue;
+          }
+          if (pegarTipoOperacionalDoDia(mapaReal, iso) === 'Folga') {
+            diasFolgaJaCumpridos++;
+            cursor.setDate(cursor.getDate() - 1);
+          } else {
+            break;
+          }
+        }
+
+        let proxCursor = parseISODateLocal(ultimaDataReal);
+        proxCursor.setDate(proxCursor.getDate() + 1);
+
+        const restanteFolga = Math.max(0, diasFolg - diasFolgaJaCumpridos);
+        if (restanteFolga > 0) {
+          previsaoInicioFolga = formatISODateLocal(proxCursor);
+        }
+
+        for (let i = 0; i < restanteFolga; i++) {
+          const iso = formatISODateLocal(proxCursor);
+          if (!mapa.has(iso)) mapa.set(iso, { tipo: 'PrevFolga', real: false });
+          previsaoFimFolga = iso;
+          proxCursor.setDate(proxCursor.getDate() + 1);
+        }
+
+        for (let j = 0; j < diasTrab; j++) {
+          const iso = formatISODateLocal(proxCursor);
+          if (!mapa.has(iso)) mapa.set(iso, { tipo: 'PrevTrabalho', real: false });
+          proxCursor.setDate(proxCursor.getDate() + 1);
+        }
+
+        if (!previsaoInicioFolga) {
+          previsaoInicioFolga = formatISODateLocal(proxCursor);
+        }
+        for (let k = 0; k < diasFolg; k++) {
+          const iso = formatISODateLocal(proxCursor);
+          if (!mapa.has(iso)) mapa.set(iso, { tipo: 'PrevFolga', real: false });
+          previsaoFimFolga = iso;
+          proxCursor.setDate(proxCursor.getDate() + 1);
+        }
+      } else if (tipoUltimo) {
+        let diasOperacaoJaCumpridos = 0;
+        let cursor = parseISODateLocal(ultimaDataReal);
+        while (true) {
+          const iso = formatISODateLocal(cursor);
+          if (ehDiaApenasAtestado(mapaReal, iso)) {
+            cursor.setDate(cursor.getDate() - 1);
+            continue;
+          }
+          const t = pegarTipoOperacionalDoDia(mapaReal, iso);
+          if (t && t !== 'Folga') {
+            diasOperacaoJaCumpridos++;
+            cursor.setDate(cursor.getDate() - 1);
+          } else {
+            break;
+          }
+        }
+
+        const ultimoRegistro = [...ordenados].reverse().find((r) => r.tipo === 'Embarque' || r.tipo === 'Porto');
+        if (ultimoRegistro && ultimoRegistro.tipo === 'Embarque') {
+          const inicioEmb = parseISODateLocal(ultimoRegistro.data_inicio);
+          const fimOuUltima = parseISODateLocal(
+            ultimoRegistro.data_fim > ultimaDataReal ? ultimoRegistro.data_fim : ultimaDataReal
+          );
+          let diasDesdeEmbarque = 0;
+          let cEmb = new Date(inicioEmb);
+          while (cEmb <= fimOuUltima) {
+            const isoEmb = formatISODateLocal(cEmb);
+            if (!ehDiaApenasAtestado(mapaReal, isoEmb)) {
+              diasDesdeEmbarque++;
+            }
+            cEmb.setDate(cEmb.getDate() + 1);
+          }
+          if (diasDesdeEmbarque > 0) {
+            diasOperacaoJaCumpridos = Math.min(diasOperacaoJaCumpridos, diasDesdeEmbarque);
+          }
+        }
+
+        const diasBaseAteFolga = Math.max(diasTrab, diasOperacaoJaCumpridos);
+        let proxCursor = parseISODateLocal(ultimaDataReal);
+        proxCursor.setDate(proxCursor.getDate() + 1);
+
+        const restanteTrabalho = Math.max(0, diasBaseAteFolga - diasOperacaoJaCumpridos);
+        for (let i = 0; i < restanteTrabalho; i++) {
+          const iso = formatISODateLocal(proxCursor);
+          if (!mapa.has(iso)) mapa.set(iso, { tipo: 'PrevTrabalho', real: false });
+          proxCursor.setDate(proxCursor.getDate() + 1);
+        }
+
+        while (formatISODateLocal(proxCursor) < hojeIso) {
+          const iso = formatISODateLocal(proxCursor);
+          if (!mapa.has(iso)) mapa.set(iso, { tipo: 'PrevTrabalho', real: false });
+          proxCursor.setDate(proxCursor.getDate() + 1);
+        }
+
+        previsaoInicioFolga = formatISODateLocal(proxCursor);
+        for (let j = 0; j < diasFolg; j++) {
+          const iso = formatISODateLocal(proxCursor);
+          if (!mapa.has(iso)) mapa.set(iso, { tipo: 'PrevFolga', real: false });
+          previsaoFimFolga = iso;
+          proxCursor.setDate(proxCursor.getDate() + 1);
+        }
+      }
     }
 
-    if (inicioProximaFolga && fimProximaFolga) {
-      const diasParaFolga = diasEntreHojeEData(inicioProximaFolga);
-      const diasParaRetorno = retornoAoTrabalho ? diasEntreHojeEData(retornoAoTrabalho) : null;
-      const badgeFolga = diasParaFolga < 0 ? 'Em folga' : formatarContagemDias(diasParaFolga);
-      const badgeRetorno = diasParaRetorno === null
-        ? '—'
-        : (diasParaRetorno < 0 ? 'Em andamento' : formatarContagemDias(diasParaRetorno));
+    const tipoOperacionalRef = ultimaDataReal
+      ? (pegarTipoOperacionalDoDia(mapaReal, ultimaDataReal) || 'Embarque')
+      : 'Embarque';
 
-      bannerEl.innerHTML = `
-        <div class="forecast-grid">
-          <div class="forecast-box">
-            <div>
-              <div><strong>Desembarque / Folga</strong></div>
-              <div>${formatarDataBR(dataParaISO(inicioProximaFolga))} a ${formatarDataBR(dataParaISO(fimProximaFolga))} (${diasFolg}d)</div>
-            </div>
-            <span class="countdown-pill">${escaparHTML(badgeFolga)}</span>
-          </div>
-          <div class="forecast-box">
-            <div>
-              <div><strong>Retorno ao trabalho</strong></div>
-              <div>${retornoAoTrabalho ? formatarDataBR(dataParaISO(retornoAoTrabalho)) : '—'} · Escala ${diasTrab}x${diasFolg}</div>
-            </div>
-            <span class="countdown-pill retorno">${escaparHTML(badgeRetorno)}</span>
-          </div>
-        </div>
-      `;
+    const hojeTemTrabalhoReal = Boolean(
+      pegarTipoOperacionalDoDia(mapaReal, hojeIso) &&
+      pegarTipoOperacionalDoDia(mapaReal, hojeIso) !== 'Folga'
+    );
+
+    const assumindoTrabalhoAteHoje =
+      (continuarTrabalhandoConfirmadoHoje === hojeIso || hojeTemTrabalhoReal) &&
+      !registrosCache.some((r) => r.tipo === 'Folga' && r.data_inicio <= hojeIso && r.data_fim >= hojeIso);
+
+    if (assumindoTrabalhoAteHoje && tipoOperacionalRef !== 'Folga') {
+      let cursorTrab = ultimaDataReal ? parseISODateLocal(ultimaDataReal) : parseISODateLocal(hojeIso);
+      if (ultimaDataReal) cursorTrab.setDate(cursorTrab.getDate() + 1);
+      const hojeDate = parseISODateLocal(hojeIso);
+
+      while (cursorTrab <= hojeDate) {
+        const isoT = formatISODateLocal(cursorTrab);
+        const temFolgaNoDia = mapaReal.get(isoT)?.some((r) => r.tipo === 'Folga');
+        if (!temFolgaNoDia) {
+          const jaTemReal = mapa.has(isoT) && mapa.get(isoT).real;
+          if (!jaTemReal) {
+            mapa.set(isoT, { tipo: tipoOperacionalRef, real: true, registro: null });
+          }
+        }
+        cursorTrab.setDate(cursorTrab.getDate() + 1);
+      }
+
+      const amanhaDate = parseISODateLocal(hojeIso);
+      amanhaDate.setDate(amanhaDate.getDate() + 1);
+      const amanhaIso = formatISODateLocal(amanhaDate);
+
+      for (const [chave, val] of mapa.entries()) {
+        if (!val.real && chave >= amanhaIso) {
+          mapa.delete(chave);
+        }
+      }
+
+      previsaoInicioFolga = amanhaIso;
+      let folgaCursor = new Date(amanhaDate);
+      for (let f = 0; f < diasFolg; f++) {
+        const isoF = formatISODateLocal(folgaCursor);
+        const temRegistroRealF = mapa.has(isoF) && mapa.get(isoF).real;
+        if (!temRegistroRealF) {
+          mapa.set(isoF, { tipo: 'PrevFolga', real: false });
+        }
+        previsaoFimFolga = isoF;
+        folgaCursor.setDate(folgaCursor.getDate() + 1);
+      }
     }
-    return mapaDias;
+
+    for (const [isoKey, listaRegs] of mapaReal.entries()) {
+      const regAtestado = listaRegs.find((r) => r.tipo === 'Atestado');
+      if (regAtestado) {
+        const atual = mapa.get(isoKey);
+        const obsAtestado = regAtestado.observacao || '';
+        const outrosTipos = listaRegs.filter((r) => r.tipo !== 'Atestado').map((r) => r.tipo);
+
+        if (outrosTipos.length === 0) {
+          mapa.set(isoKey, {
+            tipo: 'Atestado',
+            real: true,
+            registro: regAtestado,
+            observacao: obsAtestado
+          });
+        } else {
+          const baseObs = atual?.registro?.observacao || '';
+          mapa.set(isoKey, {
+            ...(atual || { tipo: outrosTipos[0], real: true, registro: regAtestado }),
+            temAtestado: true,
+            observacao: [baseObs, obsAtestado ? `Atestado: ${obsAtestado}` : 'Atestado']
+              .filter(Boolean)
+              .join(' · ')
+          });
+        }
+      }
+    }
+
+  const mapaObj = {};
+      for (const [isoKey, valor] of mapa.entries()) {
+        mapaObj[isoKey] = {
+          tipo: valor.tipo,
+          observacao: valor.registro?.observacao || '',
+          real: Boolean(valor.real),
+          registro: valor.registro || null
+      };
+    }
+
+    atualizarAvisoFolgaPendente(hojeIso, previsaoInicioFolga);
+
+  return mapaObj;
+}
+
+function subtrairUmDiaISO(isoStr) {
+    const d = parseISODateLocal(isoStr);
+    d.setDate(d.getDate() - 1);
+    return formatISODateLocal(d);
+  }
+
+  async function estenderUltimoTrabalhoAteAntesDaFolga(dataInicioFolga) {
+    if (!dataInicioFolga) return;
+    const diaAntesFolga = subtrairUmDiaISO(dataInicioFolga);
+
+    const ultimoTrabalho = registrosCache
+      .filter((r) =>
+        (r.tipo === 'Embarque' || r.tipo === 'Porto') &&
+        r.data_inicio <= dataInicioFolga &&
+        r.data_fim < diaAntesFolga
+      )
+      .sort((a, b) => {
+        if (a.data_fim !== b.data_fim) return b.data_fim.localeCompare(a.data_fim);
+        return (b.id || 0) - (a.id || 0);
+      })[0];
+
+    if (!ultimoTrabalho) return;
+
+    ultimoTrabalho.data_fim = diaAntesFolga;
+
+    if (typeof supabaseClient !== 'undefined' && supabaseClient && ultimoTrabalho.id) {
+      await supabaseClient
+        .from('escalas')
+        .update({ data_fim: diaAntesFolga })
+        .eq('id', ultimoTrabalho.id);
+    }
+  }
+
+function atualizarAvisoFolgaPendente(hojeIso, previsaoInicioFolga) {
+    const avisoEl = document.getElementById('aviso-folga-pendente');
+    const textoEl = document.getElementById('aviso-folga-texto');
+    const btnMarcar = document.getElementById('btn-marcar-folga-hoje');
+    const btnDispensar = document.getElementById('btn-dispensar-aviso-folga');
+    if (!avisoEl || !textoEl) return;
+
+    const temFolgaHoje = registrosCache.some(
+      (r) => r.tipo === 'Folga' && r.data_inicio <= hojeIso && r.data_fim >= hojeIso
+    );
+
+    const chegouOuPassouPrevisao =
+      !temFolgaHoje &&
+      previsaoInicioFolga &&
+      previsaoInicioFolga <= hojeIso &&
+      avisoFolgaDispensadoData !== hojeIso;
+
+    if (!chegouOuPassouPrevisao) {
+      avisoEl.style.display = 'none';
+      return;
+    }
+
+    textoEl.textContent = `A previsão de folga era ${formatarDataBR(previsaoInicioFolga)}, mas ainda não há registro de Folga lançado. Se você já pegou folga, marque abaixo; senão, o ciclo segue atualizado.`;
+    avisoEl.style.display = 'block';
+
+if (btnMarcar && !btnMarcar.dataset.bound) {
+      btnMarcar.dataset.bound = 'true';
+      btnMarcar.addEventListener('click', () => {
+        abrirModalRegistro(hojeIso);
+        if (typeof selecionarTipoRegistro === 'function') {
+          selecionarTipoRegistro('Folga');
+        } else {
+          const selectTipo = document.getElementById('tipo');
+          if (selectTipo) {
+            selectTipo.value = 'Folga';
+            selectTipo.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
+      });
+    }
+if (btnDispensar && !btnDispensar.dataset.bound) {
+      btnDispensar.dataset.bound = 'true';
+      btnDispensar.addEventListener('click', () => {
+        avisoFolgaDispensadoData = hojeIso;
+        continuarTrabalhandoConfirmadoHoje = hojeIso;
+        localStorage.setItem(CHAVE_AVISO_DISPENSADO, hojeIso);
+        localStorage.setItem(CHAVE_CONTINUA_TRAB, hojeIso);
+        avisoEl.style.display = 'none';
+        renderizarCalendario();
+      });
+    }
   }
 
   function mudarMes(delta) {
@@ -1922,11 +2442,25 @@ async function carregarEscalas() {
       grid.appendChild(vazio);
     }
 
+const hojeIsoRef = obterHojeISO();
+    const hojeJaTrabalhou =
+      continuarTrabalhandoConfirmadoHoje === hojeIsoRef ||
+      Boolean(
+        mapaDias[hojeIsoRef] &&
+        ['Porto', 'Embarque', 'PrevTrabalho'].includes(mapaDias[hojeIsoRef].tipo) &&
+        mapaDias[hojeIsoRef].real
+      );
+
     for (let dia = 1; dia <= totalDiasMes; dia++) {
       const iso = dataParaISO(new Date(ano, mes, dia));
       const reg = mapaDias[iso];
       const celula = document.createElement('div');
       celula.className = 'cal-day';
+      celula.style.cursor = 'pointer';
+      celula.addEventListener('click', () => {
+        abrirModalRegistro(iso);
+      });
+
       let subtexto = '';
 
       if (reg) {
@@ -1939,10 +2473,43 @@ async function carregarEscalas() {
           PrevFolga: 'is-prev-folga'
         };
         if (mapaClasse[reg.tipo]) celula.classList.add(mapaClasse[reg.tipo]);
-        subtexto = reg.tipo === 'PrevTrabalho' ? 'Prev. Trabalho' : reg.tipo === 'PrevFolga' ? 'Prev. Folga' : (reg.observacao ? `${reg.tipo} · ${reg.observacao}` : reg.tipo);
+        if (reg.temAtestado) celula.classList.add('is-atestado');
+
+        subtexto = reg.tipo === 'PrevTrabalho'
+          ? 'Prev. Trabalho'
+          : reg.tipo === 'PrevFolga'
+            ? 'Prev. Folga'
+            : (reg.observacao ? `${reg.tipo} · ${reg.observacao}` : reg.tipo);
       }
 
       celula.innerHTML = `<span class="cal-day-num">${dia}</span><span class="cal-day-label">${escaparHTML(subtexto)}</span>`;
+
+      const ehFolgaReal = Boolean(reg && reg.tipo === 'Folga' && reg.real === true);
+      const ehPrevFolga = Boolean(reg && reg.tipo === 'PrevFolga');
+      const dataMinimaFolga = hojeJaTrabalhou ? iso > hojeIsoRef : iso >= hojeIsoRef;
+
+      // Botão "Marcar folga": aparece de hoje em diante (ou amanhã se hoje já trabalhou) em dias sem Folga real, incluindo PrevFolga
+      if (dataMinimaFolga && !ehFolgaReal) {
+        const btnFolgaDia = document.createElement('button');
+        btnFolgaDia.type = 'button';
+        btnFolgaDia.innerText = ehPrevFolga ? 'Marcar folga' : 'Marcar folga';
+        btnFolgaDia.style.cssText = 'margin-top:4px; font-size:0.68rem; padding:2px 6px; border-radius:6px; border:1px solid rgba(52,211,153,0.45); background:rgba(52,211,153,0.14); color:#a7f3d0; cursor:pointer;';
+        btnFolgaDia.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          abrirModalRegistro(iso);
+          if (typeof selecionarTipoRegistro === 'function') {
+            selecionarTipoRegistro('Folga');
+          } else {
+            const selectTipo = document.getElementById('tipo');
+            if (selectTipo) {
+              selectTipo.value = 'Folga';
+              selectTipo.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          }
+        });
+        celula.appendChild(btnFolgaDia);
+      }
+
       grid.appendChild(celula);
     }
   }
@@ -1969,8 +2536,16 @@ async function carregarEscalas() {
     renderizarPerfil();
   }
 
-  async function executarSalvamentoEscala(payload, editId) {
+async function executarSalvamentoEscala(payload, editId) {
     try {
+      if (payload && payload.tipo === 'Folga') {
+        await estenderUltimoTrabalhoAteAntesDaFolga(payload.data_inicio);
+        avisoFolgaDispensadoData = null;
+        continuarTrabalhandoConfirmadoHoje = null;
+        localStorage.removeItem(CHAVE_AVISO_DISPENSADO);
+        localStorage.removeItem(CHAVE_CONTINUA_TRAB);
+      }
+
       const query = editId
         ? supabaseClient.from('escalas').update(payload).eq('id', editId)
         : supabaseClient.from('escalas').insert([{ ...payload, user_id: usuarioAtual.id }]);
@@ -1993,43 +2568,65 @@ async function carregarEscalas() {
     }
   }
 
-  document.getElementById('escala-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!usuarioAtual) return;
-    const editId = document.getElementById('edit-id').value;
-    const tipo = document.getElementById('tipo').value;
-    const data_inicio = document.getElementById('data_inicio').value;
-    const data_fim = document.getElementById('data_fim').value;
-    let observacao = document.getElementById('observacao').value.trim();
+document.getElementById('escala-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!usuarioAtual) return;
+  const btnSalvar = document.getElementById('btn-salvar');
+  if (btnSalvar.disabled) return;
+  const textoBtnOriginal = btnSalvar.innerText;
+  const editId = document.getElementById('edit-id').value;
+  const tipo = document.getElementById('tipo').value;
+  const data_inicio = document.getElementById('data_inicio').value;
+  const data_fim = document.getElementById('data_fim').value;
+  let observacao = document.getElementById('observacao').value.trim();
 
-    if (!observacao && (tipo === 'Embarque' || tipo === 'Porto') && perfilAtual?.embarcacao) {
-      observacao = perfilAtual.embarcacao.trim();
+  if (!observacao && (tipo === 'Embarque' || tipo === 'Porto') && perfilAtual?.embarcacao) {
+    observacao = perfilAtual.embarcacao.trim();
+  }
+
+  const dias_totais = calcularDias(data_inicio, data_fim);
+
+  if (dias_totais <= 0) {
+    alert('A data final deve ser igual ou posterior à data inicial.');
+    return;
+  }
+
+  const executarMutacao = async () => {
+    if (editId) {
+      const { error } = await supabaseClient
+        .from('escalas')
+        .update({ tipo, data_inicio, data_fim, dias_totais, observacao })
+        .eq('id', editId);
+      if (error) throw error;
+    } else {
+      const { error } = await supabaseClient
+        .from('escalas')
+        .insert([{ tipo, data_inicio, data_fim, dias_totais, observacao, user_id: usuarioAtual.id }]);
+      if (error) throw error;
     }
 
-    const dias_totais = calcularDias(data_inicio, data_fim);
+    fecharModalRegistro();
+    await carregarEscalas();
+  };
 
-    if (dias_totais <= 0) {
-      alert('A data final deve ser igual ou posterior à data inicial.');
-      return;
-    }
+  btnSalvar.disabled = true;
+  btnSalvar.innerText = editId ? 'Atualizando...' : 'Salvando...';
 
-    const btnSalvar = document.getElementById('btn-salvar');
-    const textoOriginalBtn = btnSalvar.innerText;
-    btnSalvar.disabled = true;
-    btnSalvar.innerText = 'Salvando...';
-
-    try {
-      await executarSalvamentoEscala(
-        { tipo, data_inicio, data_fim, dias_totais, observacao },
-        editId || null
-      );
-    } catch (_) {
-      // Erro já tratado via toast; modal continua aberto
-    } finally {
-      btnSalvar.disabled = false;
-      btnSalvar.innerText = textoOriginalBtn;
-    }
-  });
+  try {
+    await executarMutacao();
+  } catch (erro) {
+    registrarErroComToast({
+      titulo: editId ? 'Falha ao atualizar registro' : 'Falha ao salvar registro',
+      contexto: editId ? 'update_escala' : 'insert_escala',
+      erro,
+      mensagemPadrao: 'Não foi possível salvar o registro. Seus dados continuam no formulário.',
+      retryFn: executarMutacao
+    });
+  } finally {
+    btnSalvar.disabled = false;
+    btnSalvar.innerText = textoBtnOriginal;
+  }
+});
 
 async function executarExclusao(id) {
     try {
@@ -2049,41 +2646,50 @@ async function executarExclusao(id) {
 
   async function deletarRegistro(id) {
     if (!confirm('Tem certeza que deseja apagar este registro?')) return;
-    try {
-      await executarExclusao(id);
-    } catch (_) {
-      // Erro já tratado e exibido via toast em executarExclusao
-    }
-  }
 
-async function executarLimpezaRegistros() {
-    try {
-      const { error } = await supabaseClient.from('escalas').delete().eq('user_id', usuarioAtual.id);
+    const executarExclusao = async () => {
+      const { error } = await supabaseClient.from('escalas').delete().eq('id', id);
       if (error) throw error;
-      cancelarEdicao();
       await carregarEscalas();
-    } catch (err) {
-      reportarErro({
-        operacao: 'limpar_todos_registros',
-        mensagem: 'Não foi possível apagar todos os registros.',
-        erro: err,
-        onRetry: executarLimpezaRegistros
-      });
-      throw err;
-    }
-  }
+  };
 
-  async function limparTodosRegistros() {
-    if (!supabaseClient || !usuarioAtual || registrosCache.length === 0) return;
-    if (!confirm('Apagar TODOS os seus registros permanentemente?')) return;
-    try {
-      await executarLimpezaRegistros();
-    } catch (_) {
-      // Erro já tratado e exibido via toast em executarLimpezaRegistros
-    }
+  try {
+     await executarExclusao();
+    } catch (erro) {
+    registrarErroComToast({
+      titulo: 'Falha ao excluir registro',
+      contexto: 'delete_escala',
+      erro,
+      mensagemPadrao: 'Não foi possível excluir o registro.',
+      retryFn: executarExclusao
+    });
   }
+}
+
+async function limparTodosRegistros() {
+  if (!supabaseClient || !usuarioAtual || registrosCache.length === 0) return;
+  if (!confirm('Apagar TODOS os seus registros permanentemente?')) return;
+
+  const executarLimpeza = async () => {
+    const { error } = await supabaseClient.from('escalas').delete().eq('user_id', usuarioAtual.id);
+    if (error) throw error;
+    cancelarEdicao();
+    await carregarEscalas();
+  };
+
+  try {
+    await executarLimpeza();
+  } catch (erro) {
+    registrarErroComToast({
+      titulo: 'Falha ao limpar registros',
+      contexto: 'clear_escalas',
+      erro,
+      mensagemPadrao: 'Não foi possível apagar todos os registros.',
+      retryFn: executarLimpeza
+    });
+  }
+}
 
 </script>
-<div id="toast-container"></div>
 </body>
 </html>
