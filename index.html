@@ -1962,11 +1962,6 @@ if (arquivoFoto) {
     return Math.round((alvoMeiaNoite - hojeMeiaNoite) / (1000 * 60 * 60 * 24));
   }
 
-  function formatarDataBR(dataISO) {
-    const [ano, mes, dia] = dataISO.split('-');
-    return `${dia}/${mes}/${ano}`;
-  }
-
   function dataParaISO(dateObj) {
     const y = dateObj.getFullYear();
     const m = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -2565,37 +2560,6 @@ let subtexto = '';
     renderizarPerfil();
   }
 
-async function executarSalvamentoEscala(payload, editId) {
-    try {
-      if (payload && payload.tipo === 'Folga') {
-        await estenderUltimoTrabalhoAteAntesDaFolga(payload.data_inicio);
-        avisoFolgaDispensadoData = null;
-        continuarTrabalhandoConfirmadoHoje = null;
-        localStorage.removeItem(CHAVE_AVISO_DISPENSADO);
-        localStorage.removeItem(CHAVE_CONTINUA_TRAB);
-      }
-
-      const query = editId
-        ? supabaseClient.from('escalas').update(payload).eq('id', editId)
-        : supabaseClient.from('escalas').insert([{ ...payload, user_id: usuarioAtual.id }]);
-
-      const { error } = await query;
-      if (error) throw error;
-
-      fecharModalRegistro();
-      await carregarEscalas();
-    } catch (err) {
-      reportarErro({
-        operacao: editId ? 'atualizar_escala' : 'inserir_escala',
-        mensagem: editId
-          ? 'Não foi possível atualizar o registro. Seus dados continuam no formulário.'
-          : 'Não foi possível salvar o registro. Seus dados continuam no formulário.',
-        erro: err,
-        onRetry: () => executarSalvamentoEscala(payload, editId)
-      });
-      throw err;
-    }
-  }
 
 document.getElementById('escala-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -2620,23 +2584,31 @@ document.getElementById('escala-form').addEventListener('submit', async (e) => {
     return;
   }
 
-  const executarMutacao = async () => {
-    if (editId) {
-      const { error } = await supabaseClient
-        .from('escalas')
-        .update({ tipo, data_inicio, data_fim, dias_totais, observacao })
-        .eq('id', editId);
-      if (error) throw error;
-    } else {
-      const { error } = await supabaseClient
-        .from('escalas')
-        .insert([{ tipo, data_inicio, data_fim, dias_totais, observacao, user_id: usuarioAtual.id }]);
-      if (error) throw error;
-    }
+const executarMutacao = async () => {
+  if (tipo === 'Folga') {
+    await estenderUltimoTrabalhoAteAntesDaFolga(data_inicio);
+    avisoFolgaDispensadoData = null;
+    continuarTrabalhandoConfirmadoHoje = null;
+    localStorage.removeItem(CHAVE_AVISO_DISPENSADO);
+    localStorage.removeItem(CHAVE_CONTINUA_TRAB);
+  }
 
-    fecharModalRegistro();
-    await carregarEscalas();
-  };
+  if (editId) {
+    const { error } = await supabaseClient
+      .from('escalas')
+      .update({ tipo, data_inicio, data_fim, dias_totais, observacao })
+      .eq('id', editId);
+    if (error) throw error;
+  } else {
+    const { error } = await supabaseClient
+      .from('escalas')
+      .insert([{ tipo, data_inicio, data_fim, dias_totais, observacao, user_id: usuarioAtual.id }]);
+    if (error) throw error;
+  }
+
+  fecharModalRegistro();
+  await carregarEscalas();
+};
 
   btnSalvar.disabled = true;
   btnSalvar.innerText = editId ? 'Atualizando...' : 'Salvando...';
@@ -2657,34 +2629,18 @@ document.getElementById('escala-form').addEventListener('submit', async (e) => {
   }
 });
 
-async function executarExclusao(id) {
-    try {
-      const { error } = await supabaseClient.from('escalas').delete().eq('id', id);
-      if (error) throw error;
-      await carregarEscalas();
-    } catch (err) {
-      reportarErro({
-        operacao: 'deletar_registro',
-        mensagem: 'Não foi possível excluir o registro.',
-        erro: err,
-        onRetry: () => executarExclusao(id)
-      });
-      throw err;
-    }
-  }
+async function deletarRegistro(id) {
+  if (!confirm('Tem certeza que deseja apagar este registro?')) return;
 
-  async function deletarRegistro(id) {
-    if (!confirm('Tem certeza que deseja apagar este registro?')) return;
-
-    const executarExclusao = async () => {
-      const { error } = await supabaseClient.from('escalas').delete().eq('id', id);
-      if (error) throw error;
-      await carregarEscalas();
+  const executarExclusao = async () => {
+    const { error } = await supabaseClient.from('escalas').delete().eq('id', id);
+    if (error) throw error;
+    await carregarEscalas();
   };
 
   try {
-     await executarExclusao();
-    } catch (erro) {
+    await executarExclusao();
+  } catch (erro) {
     registrarErroComToast({
       titulo: 'Falha ao excluir registro',
       contexto: 'delete_escala',
