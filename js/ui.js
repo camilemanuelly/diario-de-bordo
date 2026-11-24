@@ -235,19 +235,19 @@ export function renderizarTabelaEscalasUI(registros) {
 
   for (const item of registros) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><span class="tag">${escaparHTML(item.tipo)}</span></td>
-      <td>${formatarDataBR(item.data_inicio)}</td>
-      <td>${formatarDataBR(item.data_fim)}</td>
-      <td><strong>${Number(item.dias_totais) || 0}d</strong></td>
-      <td>${escaparHTML(item.observacao || '—')}</td>
-      <td>
-        <div class="row-actions">
-          <button type="button" class="btn-link" data-action="editar" data-id="${item.id}">Editar</button>
-          <button type="button" class="btn-link danger" data-action="excluir" data-id="${item.id}">Excluir</button>
-        </div>
-      </td>
-    `;
+tr.innerHTML = `
+  <td data-label="Tipo"><span class="tag">${escaparHTML(item.tipo)}</span></td>
+  <td data-label="Início">${formatarDataBR(item.data_inicio)}</td>
+  <td data-label="Fim">${formatarDataBR(item.data_fim)}</td>
+  <td data-label="Dias"><strong>${Number(item.dias_totais) || 0}d</strong></td>
+  <td data-label="Observação">${escaparHTML(item.observacao || '—')}</td>
+  <td data-label="Ações">
+    <div class="row-actions">
+      <button type="button" class="btn-link" data-action="editar" data-id="${item.id}">Editar</button>
+      <button type="button" class="btn-link danger" data-action="excluir" data-id="${item.id}">Excluir</button>
+    </div>
+  </td>
+`;
     tbody.appendChild(tr);
   }
 }
@@ -327,7 +327,8 @@ export function renderizarCalendarioUI({
 
   const ano = mesReferencia.getFullYear();
   const mes = mesReferencia.getMonth();
-  titulo.innerText = mesReferencia.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  const tituloBruto = mesReferencia.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  titulo.innerText = tituloBruto.charAt(0).toUpperCase() + tituloBruto.slice(1);
 
   ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].forEach((d) => {
     const el = document.createElement('div');
@@ -363,7 +364,7 @@ export function renderizarCalendarioUI({
     PrevFolga: 'is-prev-folga'
   };
 
-  for (let dia = 1; dia <= totalDiasMes; dia++) {
+for (let dia = 1; dia <= totalDiasMes; dia++) {
     const mStr = String(mes + 1).padStart(2, '0');
     const dStr = String(dia).padStart(2, '0');
     const iso = `${ano}-${mStr}-${dStr}`;
@@ -385,11 +386,26 @@ export function renderizarCalendarioUI({
         celula.classList.add(mapaClasse[reg.tipo]);
       }
 
-      subtexto = reg.tipo === 'PrevTrabalho'
+      const textoCompleto = reg.tipo === 'PrevTrabalho'
         ? 'Prev. Trabalho'
         : reg.tipo === 'PrevFolga'
           ? 'Prev. Folga'
           : (reg.observacao ? `${reg.tipo} · ${reg.observacao}` : reg.tipo);
+
+      celula.title = textoCompleto;
+
+      const ehTelaEstreita = window.innerWidth <= 760;
+      if (ehTelaEstreita) {
+        subtexto = reg.tipo === 'PrevTrabalho'
+          ? 'Prev. Trab.'
+          : reg.tipo === 'PrevFolga'
+            ? 'Prev. Folga'
+            : reg.temAtestado && reg.tipo !== 'Atestado'
+              ? `${reg.tipo} + Atest.`
+              : reg.tipo;
+      } else {
+        subtexto = textoCompleto;
+      }
     }
 
     celula.innerHTML = `<span class="cal-day-num">${dia}</span><span class="cal-day-label">${escaparHTML(subtexto)}</span>`;
