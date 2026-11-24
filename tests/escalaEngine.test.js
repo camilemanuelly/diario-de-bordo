@@ -155,3 +155,47 @@ test('parseISODateLocal e formatISODateLocal preservam a data sem deslocar por f
   const dataObj = parseISODateLocal('2026-11-24');
   assert.equal(formatISODateLocal(dataObj), '2026-11-24');
 });
+
+test('Porto também entra como dia trabalhado e gera folga proporcional', () => {
+  const registros = [
+    { id: 1, tipo: 'Porto', data_inicio: '2026-11-13', data_fim: '2026-11-22' }
+  ];
+
+  const metricas = calcularMetricasFolga(registros, {
+    diasTrab: 10,
+    diasFolg: 5,
+    proporcao: 0.5
+  });
+
+  assert.equal(metricas.diasTrabalhados, 10);
+  assert.equal(metricas.folgasGeradas, 5);
+  assert.equal(metricas.saldo, 5);
+});
+
+test('gerarMapaCalendarioEPrevisao projeta folga através da virada de mês', () => {
+  const registros = [
+    { id: 1, tipo: 'Embarque', data_inicio: '2026-11-20', data_fim: '2026-11-29' }
+  ];
+
+  const { previsao } = gerarMapaCalendarioEPrevisao({
+    registros,
+    regraEscala: { diasTrab: 10, diasFolg: 5, proporcao: 0.5 },
+    hojeIso: '2026-11-28'
+  });
+
+  assert.equal(previsao.inicioProximaFolga, '2026-11-29');
+  assert.equal(previsao.fimProximaFolga, '2026-12-03');
+});
+
+test('calcularMetricasFolga independe da ordem dos registros no array', () => {
+  const ordenados = [
+    { tipo: 'Embarque', data_inicio: '2026-11-01', data_fim: '2026-11-10' },
+    { tipo: 'Folga', data_inicio: '2026-11-11', data_fim: '2026-11-15' }
+  ];
+  const embaralhados = [...ordenados].reverse();
+
+  assert.deepEqual(
+    calcularMetricasFolga(embaralhados, { diasTrab: 10, diasFolg: 5, proporcao: 0.5 }),
+    calcularMetricasFolga(ordenados, { diasTrab: 10, diasFolg: 5, proporcao: 0.5 })
+  );
+});
