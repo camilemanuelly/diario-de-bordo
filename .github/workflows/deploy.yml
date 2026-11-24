@@ -1,3 +1,4 @@
+camile@xuxubi:~/Documentos/diario-de-bordo/.github$ cat workflows/deploy.yml
 name: Testar e publicar no GitHub Pages
 
 on:

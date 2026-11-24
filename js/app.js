@@ -19,8 +19,7 @@ import {
   marcarAvisoFolgaVistoHoje,
   salvarCacheEscalas,
   salvarCachePerfil,
-  salvarContinuaTrabalhandoHoje,
-  salvarFlagStorage
+  salvarContinuaTrabalhandoHoje
 } from './storageCache.js';
 
 import {
@@ -252,7 +251,7 @@ async function confirmarTrabalhoAteHoje() {
 
 if (ultimoOperacional?.id && ultimoOperacional.data_fim < hojeIso) {
       await estenderEscalaTrabalho(ultimoOperacional.id, hojeIso);
-    } else if (!ultimoOperacional) {
+} else if (!ultimoOperacional) {
       const observacaoPadrao = (estado.perfilAtual?.embarcacao || '').trim() || null;
 
       await salvarEscala({
@@ -267,6 +266,7 @@ if (ultimoOperacional?.id && ultimoOperacional.data_fim < hojeIso) {
         }
       });
     }
+  }
 
   estado.avisoFolgaDispensadoData = hojeIso;
   estado.continuaTrabalhandoConfirmadoHoje = hojeIso;
@@ -277,29 +277,29 @@ if (ultimoOperacional?.id && ultimoOperacional.data_fim < hojeIso) {
 
 function vincularEventos() {
 
-  document.getElementById('forecast-banner')?.addEventListener('click', async (event) => {
-  const btn = event.target.closest('#btn-confirmar-trabalho-hoje');
-  if (!btn || btn.disabled) return;
+document.getElementById('forecast-banner')?.addEventListener('click', async (event) => {
+    const btn = event.target.closest('#btn-confirmar-trabalho-hoje');
+    if (!btn || btn.disabled) return;
 
-  const textoOriginal = btn.innerText;
-  btn.disabled = true;
-  btn.innerText = 'Salvando...';
+    const textoOriginal = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = 'Salvando...';
 
-  try {
-    await confirmarTrabalhoAteHoje();
-  } catch (erro) {
-    mostrarToast({
-      titulo: 'Falha ao confirmar trabalho',
-      mensagem: traduzirErroSupabase(erro, 'Não foi possível registrar o trabalho de hoje.'),
-      retryFn: confirmarTrabalhoAteHoje
-    });
-  } finally {
-    if (btn.isConnected) {
-      btn.disabled = false;
-      btn.innerText = textoOriginal;
+    try {
+      await confirmarTrabalhoAteHoje();
+    } catch (erro) {
+      mostrarToast({
+        titulo: 'Falha ao confirmar trabalho',
+        mensagem: traduzirErroSupabase(erro, 'Não foi possível registrar o trabalho de hoje.'),
+        retryFn: confirmarTrabalhoAteHoje
+      });
+    } finally {
+      if (btn.isConnected) {
+        btn.disabled = false;
+        btn.innerText = textoOriginal;
+      }
     }
-  }
-});
+  });
   
   document.getElementById('tab-login')?.addEventListener('click', () => {
     estado.modoAuth = 'login';
