@@ -164,8 +164,13 @@ export async function obterFilaPendente() {
     const request = index.getAll();
 
     request.onsuccess = () => {
+      const agora = Date.now();
       const itens = request.result || [];
-      resolve(itens.filter((item) => item.status === 'pendente'));
+      resolve(
+        itens.filter(
+          (item) => item.status === 'pendente' && (!item.proximaTentativaEm || item.proximaTentativaEm <= agora)
+        )
+      );
     };
     request.onerror = (e) => reject(e.target.error);
   });
@@ -192,5 +197,95 @@ export async function incrementarTentativaFila(id, tentativasAtuais) {
       resolve(true);
     };
     tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
+// ==========================================
+// OPERAÇÕES: SYNC ENGINE
+// ==========================================
+
+export async function marcarStatusFila(id, status, erroInfo = null) {
+  const db = await abrirBanco();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('sync_queue', 'readwrite');
+    const store = tx.objectStore('sync_queue');
+    const getReq = store.get(id);
+
+    getReq.onsuccess = () => {
+      const item = getReq.result;
+      if (!item) return resolve(false);
+      item.status = status;
+      if (erroInfo) {
+        item.ultimoErro = String(erroInfo?.message || erroInfo);
+      }
+      store.put(item);
+      resolve(true);
+    };
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
+export async function reagendarTentativaFila(id, tentativasAtuais = null) {
+  const db = await abrirBanco();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('sync_queue', 'readwrite');
+    const store = tx.objectStore('sync_queue');
+    const getReq = store.get(id);
+
+    getReq.onsuccess = () => {
+      const item = getReq.result;
+      if (!item) return resolve(false);
+      const tentativas = (tentativasAtuais ?? item.tentativas ?? 0) + 1;
+      const delay = Math.min(Math.pow(2, tentativas) * 1000, 60_000);
+      item.tentativas = tentativas;
+      item.proximaTentativaEm = Date.now() + delay;
+      item.status = 'pendente';
+      store.put(item);
+      resolve({ tentativas, proximaTentativaEm: item.proximaTentativaEm });
+    };
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
+export async function confirmarEscalaSincronizada(tempId, escalaServidor) {
+  if (!tempId || !escalaServidor?.id) return false;
+  const idReal = escalaServidor.id;
+  const db = await abrirBanco();
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(['escalas', 'sync_queue'], 'readwrite');
+    const escalasStore = tx.objectStore('escalas');
+    const filaStore = tx.objectStore('sync_queue');
+
+    if (tempId !== idReal) {
+      escalasStore.delete(tempId);
+    }
+
+    escalasStore.put({
+      ...escalaServidor,
+      userId: escalaServidor.user_id || escalaServidor.userId,
+      sincronizado: true,
+      atualizadoEmLocal: new Date().toISOString()
+    });
+
+    if (tempId !== idReal) {
+      const cursorReq = filaStore.openCursor();
+      cursorReq.onsuccess = () => {
+        const cursor = cursorReq.result;
+        if (!cursor) return;
+        const item = cursor.value;
+        let alterado = false;
+        if (item.payload) {
+          if (item.payload.id === tempId) { item.payload.id = idReal; alterado = true; }
+          if (item.payload.editId === tempId) { item.payload.editId = idReal; alterado = true; }
+        }
+        if (alterado) cursor.update(item);
+        cursor.continue();
+      };
+    }
+
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = (e) => reject(e.target.error);
+    tx.onabort = (e) => reject(new Error(`Transação abortada: ${e.target.error}`));
   });
 }
