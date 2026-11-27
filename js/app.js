@@ -674,4 +674,26 @@ document.getElementById('btn-dispensar-aviso-folga')?.addEventListener('click', 
   });
 }
 
+async function iniciarApp() {
+  vincularEventos();
+
+  try {
+    obterClienteSupabase();
+  } catch (erro) {
+    definirMensagemAuth(erro.message || 'Não foi possível carregar o cliente do Supabase.');
+    return;
+  }
+
+  escutarMudancaAuth((session) => {
+    aplicarSessao(session);
+  });
+
+  try {
+    const sessaoInicial = await obterSessaoAtual();
+    await aplicarSessao(sessaoInicial);
+  } catch (erro) {
+    definirMensagemAuth('Erro ao verificar sessão: ' + traduzirErroSupabase(erro));
+  }
+}
+
 iniciarApp();
