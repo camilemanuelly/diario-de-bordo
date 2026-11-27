@@ -663,28 +663,15 @@ document.getElementById('btn-dispensar-aviso-folga')?.addEventListener('click', 
     const cached = lerCacheEscalas(estado.usuarioAtual.id);
     atualizarBannerOffline({ ativo: true, salvoEm: cached?.salvoEm });
   });
-}
 
-async function iniciarApp() {
-  vincularEventos();
-
-  try {
-    obterClienteSupabase();
-  } catch (erro) {
-    definirMensagemAuth(erro.message || 'Não foi possível carregar o cliente do Supabase.');
-    return;
-  }
-
-  escutarMudancaAuth((session) => {
-    aplicarSessao(session);
+  // Aviso discreto em caso de falha na migração de localStorage -> IndexedDB
+  window.addEventListener('migracao:falha', (evento) => {
+    const mensagem = evento.detail?.mensagem || 'Sincronização do armazenamento local pendente.';
+    mostrarToast({
+      titulo: 'Aviso',
+      mensagem
+    });
   });
-
-  try {
-    const sessaoInicial = await obterSessaoAtual();
-    await aplicarSessao(sessaoInicial);
-  } catch (erro) {
-    definirMensagemAuth('Erro ao verificar sessão: ' + traduzirErroSupabase(erro));
-  }
 }
 
 iniciarApp();
