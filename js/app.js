@@ -13,31 +13,24 @@ import {
 import {
   lerAvisoFolgaVistoHoje,
   lerCacheEscalas,
-  lerCachePerfil,
   lerContinuaTrabalhandoHoje,
   lerFlagStorage,
   marcarAvisoFolgaVistoHoje,
-  salvarCacheEscalas,
-  salvarCachePerfil,
   salvarContinuaTrabalhandoHoje
 } from './storageCache.js';
 
 import {
-  atualizarPerfilUsuario,
   atualizarUsuarioAuth,
   buscarOuCriarPerfil,
   cadastrarComSenha,
   entrarComSenha,
   enviarResetSenha,
   escutarMudancaAuth,
-  estenderEscalaTrabalho,
-  excluirEscalaPorId,
   limparEscalasUsuario,
   listarEscalasUsuario,
   obterClienteSupabase,
   obterSessaoAtual,
   sairDaConta,
-  salvarEscala,
   traduzirErroSupabase,
   uploadAvatarUsuario
 } from './supabaseClient.js';
@@ -61,6 +54,21 @@ import {
   renderizarTabelaEscalasUI,
   selecionarTipoRegistroUI
 } from './ui.js';
+
+import {
+  obterPerfilLocal,
+  salvarPerfilLocal,
+  obterEscalasLocais,
+  salvarEscalasLocais,
+  obterFilaPendente,
+  removerEscalaLocal,
+  resetarStatusProcessando,
+  enfileirarMutacao
+} from './indexedDB.js';
+
+import { dispararSync, inicializarSyncEngine } from './syncEngine.js';
+
+import { migrarLocalStorageParaIndexedDB } from './migracao.js';
 
 const estado = {
   modoAuth: 'login',
@@ -135,74 +143,172 @@ function atualizarTelasDeEscala() {
   });
 }
 
+function reconciliarEscalas({ escalasServidor, escalasLocais, filaPendente }) {
+  const idsEmMutacao = new Set();
+  const idsDeletadosLocalmente = new Set();
+
+  for (const item of filaPendente) {
+    if (item.tabela !== 'escalas') continue;
+    const idAlvo = String(item.payload?.editId ?? item.payload?.id ?? '');
+    if (!idAlvo) continue;
+
+    if (item.operacao === 'DELETE') {
+      idsDeletadosLocalmente.add(idAlvo);
+    } else {
+      idsEmMutacao.add(idAlvo);
+    }
+  }
+
+  const baseServidorLimpa = escalasServidor.filter((escala) => {
+    const id = String(escala.id);
+    if (idsDeletadosLocalmente.has(id)) return false;
+    if (idsEmMutacao.has(id)) return false;
+    return true;
+  });
+
+  const pendentesLocais = escalasLocais.filter((escala) => {
+    const id = String(escala.id);
+    const isTemp = typeof escala.id === 'string' && escala.id.startsWith('temp_');
+    const isModificado = idsEmMutacao.has(id);
+    return (isTemp || isModificado) && !idsDeletadosLocalmente.has(id);
+  });
+
+  const resultado = [...pendentesLocais, ...baseServidorLimpa];
+  resultado.sort((a, b) => (b.data_inicio || '').localeCompare(a.data_inicio || ''));
+  return resultado;
+}
+
 async function carregarPerfilApp() {
   if (!estado.usuarioAtual) return;
   const userId = estado.usuarioAtual.id;
 
   try {
-    const perfil = await buscarOuCriarPerfil(estado.usuarioAtual);
-    estado.perfilAtual = perfil;
-    salvarCachePerfil(userId, perfil);
-    atualizarBannerOffline({ ativo: false });
-  } catch (erro) {
-    console.error(`[${new Date().toISOString()}] [carregar_perfil]`, erro);
-    const cached = lerCachePerfil(userId);
-    if (cached?.dados) {
-      estado.perfilAtual = cached.dados;
-      atualizarBannerOffline({ ativo: true, salvoEm: cached.salvoEm });
-    } else {
-      estado.perfilAtual = {
-        id: userId,
-        nome_exibicao: '',
-        empresa: 'Atem',
-        dias_trabalho: APP_CONFIG.escalaPadrao.diasTrabalho,
-        dias_folga: APP_CONFIG.escalaPadrao.diasFolga
-      };
+    const perfilLocal = await obterPerfilLocal(userId);
+    if (perfilLocal) {
+      estado.perfilAtual = perfilLocal;
+      renderizarPerfilUI({ perfil: estado.perfilAtual, usuario: estado.usuarioAtual });
     }
+  } catch (erroIdb) {
+    console.warn('[Perfil] Leitura local IDB falhou:', erroIdb);
   }
 
-  renderizarPerfilUI({ perfil: estado.perfilAtual, usuario: estado.usuarioAtual });
-}
-
-async function carregarEscalasApp() {
-  if (!estado.usuarioAtual) return;
-  const userId = estado.usuarioAtual.id;
+  if (!navigator.onLine) {
+    atualizarBannerOffline({ ativo: true });
+    return;
+  }
 
   try {
-    const escalas = await listarEscalasUsuario();
-    estado.registrosCache = escalas;
-    salvarCacheEscalas(userId, escalas);
-    atualizarBannerOffline({ ativo: !navigator.onLine, salvoEm: lerCacheEscalas(userId)?.salvoEm });
-    atualizarTelasDeEscala();
+    const fila = await obterFilaPendente();
+    const temUpdatePendente = fila.some(
+      (item) => item.tabela === 'perfis' && item.operacao === 'UPDATE'
+    );
+    if (temUpdatePendente) return;
+
+    const perfilServidor = await buscarOuCriarPerfil(estado.usuarioAtual);
+    if (perfilServidor) {
+      estado.perfilAtual = perfilServidor;
+      await salvarPerfilLocal(userId, perfilServidor);
+      atualizarBannerOffline({ ativo: false });
+      renderizarPerfilUI({ perfil: estado.perfilAtual, usuario: estado.usuarioAtual });
+    }
   } catch (erro) {
-    console.error(`[${new Date().toISOString()}] [carregar_escalas]`, erro);
-    const cached = lerCacheEscalas(userId);
-    if (cached?.dados) {
-      estado.registrosCache = cached.dados;
-      atualizarBannerOffline({ ativo: true, salvoEm: cached.salvoEm });
-      atualizarTelasDeEscala();
+    console.warn('[Perfil] Revalidação remota falhou:', erro);
+    atualizarBannerOffline({ ativo: true });
+  }
+}
+
+let carregandoEscalas = false;
+let recarregarPendente = false;
+
+async function carregarEscalasApp(opcoes = { renderLocalPrimeiro: true }) {
+  if (carregandoEscalas) {
+    recarregarPendente = true;
+    return;
+  }
+  carregandoEscalas = true;
+
+  try {
+    if (!estado.usuarioAtual) return;
+    const userId = estado.usuarioAtual.id;
+    let escalasLocais = [];
+
+    if (opcoes.renderLocalPrimeiro) {
+      try {
+        escalasLocais = (await obterEscalasLocais(userId)) || [];
+        if (escalasLocais.length > 0) {
+          estado.registrosCache = escalasLocais;
+          atualizarTelasDeEscala();
+        }
+      } catch (erroIdb) {
+        console.warn('[Escalas] Leitura local IDB falhou:', erroIdb);
+      }
     }
 
-    mostrarToast({
-      titulo: 'Falha ao carregar escalas',
-      mensagem: traduzirErroSupabase(erro, 'Não foi possível atualizar a lista de escalas.'),
-      retryFn: carregarEscalasApp
-    });
+    if (!navigator.onLine) {
+      atualizarBannerOffline({ ativo: true });
+      return;
+    }
+
+    try {
+      if (escalasLocais.length === 0) {
+        escalasLocais = (await obterEscalasLocais(userId)) || [];
+      }
+
+      const escalasServidor = await listarEscalasUsuario();
+      const filaPendente = await obterFilaPendente();
+
+      const escalasReconciliadas = reconciliarEscalas({
+        escalasServidor,
+        escalasLocais,
+        filaPendente
+      });
+
+      estado.registrosCache = escalasReconciliadas;
+      await salvarEscalasLocais(userId, escalasReconciliadas);
+
+      atualizarBannerOffline({ ativo: false });
+      atualizarTelasDeEscala();
+    } catch (erro) {
+      console.warn('[Escalas] Revalidação remota falhou:', erro);
+      atualizarBannerOffline({ ativo: true });
+    }
+  } finally {
+    carregandoEscalas = false;
+    if (recarregarPendente) {
+      recarregarPendente = false;
+      await carregarEscalasApp({ renderLocalPrimeiro: false });
+    }
   }
 }
 
 async function aplicarSessao(session) {
   estado.usuarioAtual = session?.user || null;
 
-if (estado.usuarioAtual) {
+  if (estado.usuarioAtual) {
     const userId = estado.usuarioAtual.id;
     estado.avisoFolgaDispensadoData = lerAvisoFolgaVistoHoje(userId);
     estado.continuaTrabalhandoConfirmadoHoje = lerContinuaTrabalhandoHoje(userId);
     alternarVisaoAutenticada(true);
     fecharFormulariosPerfilEConta();
+
+    try {
+      await migrarLocalStorageParaIndexedDB(userId);
+    } catch (errMig) {
+      console.warn('[Migração] Falha na migração localStorage->IDB:', errMig);
+    }
+
+    try {
+      const resetados = await resetarStatusProcessando();
+      if (resetados > 0) {
+        console.info(`[SyncEngine] ${resetados} item(ns) resetados para 'pendente' no boot.`);
+      }
+    } catch (errReset) {
+      console.warn('[SyncEngine] Falha ao resetar status processando:', errReset);
+    }
+
     await carregarPerfilApp();
     await carregarEscalasApp();
-} else {
+  } else {
     estado.perfilAtual = null;
     estado.registrosCache = [];
     estado.avisoFolgaDispensadoData = null;
@@ -212,8 +318,8 @@ if (estado.usuarioAtual) {
   }
 }
 
-async function estenderUltimoTrabalhoSeNecessario(dataInicioFolga) {
-  if (!dataInicioFolga) return;
+async function estenderUltimoTrabalhoSeNecessario(dataInicioFolga, userId) {
+  if (!dataInicioFolga || !userId) return;
   const diaAntesFolga = subtrairUmDiaISO(dataInicioFolga);
 
   const ultimoTrabalho = [...estado.registrosCache]
@@ -224,12 +330,37 @@ async function estenderUltimoTrabalhoSeNecessario(dataInicioFolga) {
     )
     .sort((a, b) => {
       if (a.data_fim !== b.data_fim) return b.data_fim.localeCompare(a.data_fim);
-      return (b.id || 0) - (a.id || 0);
+      return String(b.id || '').localeCompare(String(a.id || ''));
     })[0];
 
   if (!ultimoTrabalho?.id) return;
 
-  await estenderEscalaTrabalho(ultimoTrabalho.id, diaAntesFolga);
+  const novosDiasTotais = calcularDias(ultimoTrabalho.data_inicio, diaAntesFolga);
+  const registroAtualizado = {
+    ...ultimoTrabalho,
+    userId,
+    user_id: userId,
+    data_fim: diaAntesFolga,
+    dias_totais: novosDiasTotais,
+    sincronizado: false
+  };
+
+  const idx = estado.registrosCache.findIndex((r) => String(r.id) === String(ultimoTrabalho.id));
+  if (idx >= 0) {
+    estado.registrosCache[idx] = registroAtualizado;
+  }
+
+  await salvarEscalasLocais(userId, [registroAtualizado], false);
+  await enfileirarMutacao('escalas', 'UPDATE', {
+    editId: ultimoTrabalho.id,
+    id: ultimoTrabalho.id,
+    userId,
+    tipo: registroAtualizado.tipo,
+    data_inicio: registroAtualizado.data_inicio,
+    data_fim: registroAtualizado.data_fim,
+    dias_totais: registroAtualizado.dias_totais,
+    observacao: registroAtualizado.observacao || null
+  });
 }
 
 async function confirmarTrabalhoAteHoje() {
@@ -246,33 +377,78 @@ async function confirmarTrabalhoAteHoje() {
       .filter((r) => r.tipo === 'Embarque' || r.tipo === 'Porto')
       .sort((a, b) => {
         if (a.data_fim !== b.data_fim) return b.data_fim.localeCompare(a.data_fim);
-        return (b.id || 0) - (a.id || 0);
+        return String(b.id || '').localeCompare(String(a.id || ''));
       })[0];
 
-if (ultimoOperacional?.id && ultimoOperacional.data_fim < hojeIso) {
-      await estenderEscalaTrabalho(ultimoOperacional.id, hojeIso);
-} else if (!ultimoOperacional) {
-      const observacaoPadrao = (estado.perfilAtual?.embarcacao || '').trim() || null;
-
-      await salvarEscala({
-        editId: null,
+    if (ultimoOperacional?.id && ultimoOperacional.data_fim < hojeIso) {
+      const novosDiasTotais = calcularDias(ultimoOperacional.data_inicio, hojeIso);
+      const registroEstendido = {
+        ...ultimoOperacional,
         userId,
-        payload: {
-          tipo: 'Embarque',
-          data_inicio: hojeIso,
-          data_fim: hojeIso,
-          dias_totais: 1,
-          observacao: observacaoPadrao
-        }
+        user_id: userId,
+        data_fim: hojeIso,
+        dias_totais: novosDiasTotais,
+        sincronizado: false
+      };
+
+      const idx = estado.registrosCache.findIndex(
+        (r) => String(r.id) === String(ultimoOperacional.id)
+      );
+      if (idx >= 0) {
+        estado.registrosCache[idx] = registroEstendido;
+      }
+
+      await salvarEscalasLocais(userId, [registroEstendido], false);
+      await enfileirarMutacao('escalas', 'UPDATE', {
+        editId: ultimoOperacional.id,
+        id: ultimoOperacional.id,
+        userId,
+        tipo: registroEstendido.tipo,
+        data_inicio: registroEstendido.data_inicio,
+        data_fim: registroEstendido.data_fim,
+        dias_totais: registroEstendido.dias_totais,
+        observacao: registroEstendido.observacao || null
+      });
+    } else if (!ultimoOperacional) {
+      const observacaoPadrao = (estado.perfilAtual?.embarcacao || '').trim() || null;
+      const tempId = `temp_${crypto.randomUUID()}`;
+      const novoRegistro = {
+        id: tempId,
+        userId,
+        user_id: userId,
+        tipo: 'Embarque',
+        data_inicio: hojeIso,
+        data_fim: hojeIso,
+        dias_totais: 1,
+        observacao: observacaoPadrao,
+        sincronizado: false
+      };
+
+      estado.registrosCache.push(novoRegistro);
+      await salvarEscalasLocais(userId, [novoRegistro], false);
+      await enfileirarMutacao('escalas', 'INSERT', {
+        id: tempId,
+        userId,
+        tipo: 'Embarque',
+        data_inicio: hojeIso,
+        data_fim: hojeIso,
+        dias_totais: 1,
+        observacao: observacaoPadrao
       });
     }
+
+    estado.registrosCache.sort((a, b) =>
+      (b.data_inicio || '').localeCompare(a.data_inicio || '')
+    );
   }
 
   estado.avisoFolgaDispensadoData = hojeIso;
   estado.continuaTrabalhandoConfirmadoHoje = hojeIso;
   marcarAvisoFolgaVistoHoje(userId, hojeIso);
   salvarContinuaTrabalhandoHoje(userId, hojeIso);
-  await carregarEscalasApp();
+
+  atualizarTelasDeEscala();
+  dispararSync();
 }
 
 function vincularEventos() {
@@ -367,7 +543,7 @@ document.getElementById('forecast-banner')?.addEventListener('click', async (eve
     alternarFormularioSecao('conta');
   });
 
-  document.getElementById('perfil-form')?.addEventListener('submit', async (e) => {
+document.getElementById('perfil-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!estado.usuarioAtual) return;
 
@@ -377,6 +553,7 @@ document.getElementById('forecast-banner')?.addEventListener('click', async (eve
     btn.innerText = 'Salvando...';
 
     try {
+      const userId = estado.usuarioAtual.id;
       const nome_exibicao = document.getElementById('input-nome').value.trim();
       const posto = document.getElementById('select-posto').value || null;
       const embarcacao = document.getElementById('input-embarcacao').value.trim() || null;
@@ -386,11 +563,18 @@ document.getElementById('forecast-banner')?.addEventListener('click', async (eve
         dias_trabalho: document.getElementById('input-dias-trabalho').value,
         dias_folga: document.getElementById('input-dias-folga').value
       });
-      const arquivoFoto = document.getElementById('input-foto').files[0];
+      const inputFoto = document.getElementById('input-foto');
+      const arquivoFoto = inputFoto?.files?.[0] || null;
 
       let avatar_url = estado.perfilAtual?.avatar_url || null;
+      let fotoIgnoradaOffline = false;
+
       if (arquivoFoto) {
-        avatar_url = await uploadAvatarUsuario(estado.usuarioAtual.id, arquivoFoto);
+        if (navigator.onLine) {
+          avatar_url = await uploadAvatarUsuario(userId, arquivoFoto);
+        } else {
+          fotoIgnoradaOffline = true;
+        }
       }
 
       const payload = {
@@ -405,14 +589,38 @@ document.getElementById('forecast-banner')?.addEventListener('click', async (eve
         updated_at: new Date().toISOString()
       };
 
-      const atualizado = await atualizarPerfilUsuario(estado.usuarioAtual.id, payload);
-      estado.perfilAtual = atualizado || { ...estado.perfilAtual, ...payload };
-      salvarCachePerfil(estado.usuarioAtual.id, estado.perfilAtual);
+      const perfilAtualizado = {
+        ...(estado.perfilAtual || {}),
+        ...payload,
+        userId,
+        id: userId
+      };
 
-      document.getElementById('input-foto').value = '';
+      // 1. Atualiza estado em memória e IndexedDB imediatamente
+      estado.perfilAtual = perfilAtualizado;
+      await salvarPerfilLocal(userId, perfilAtualizado);
+
+      // 2. Enfileira mutação no formato esperado pelo syncEngine ({ userId, dados })
+      await enfileirarMutacao('perfis', 'UPDATE', {
+        userId,
+        dados: payload
+      });
+
+      // 3. Limpa input, fecha formulário e re-renderiza perfil e projeções na hora
+      if (inputFoto) inputFoto.value = '';
       fecharFormulariosPerfilEConta();
       renderizarPerfilUI({ perfil: estado.perfilAtual, usuario: estado.usuarioAtual });
       atualizarTelasDeEscala();
+
+      if (fotoIgnoradaOffline) {
+        mostrarToast({
+          titulo: 'Dados salvos offline',
+          mensagem: 'Suas alterações foram gravadas no aparelho, mas o envio da foto exige internet.'
+        });
+      }
+
+      // 4. Dispara drenagem da fila em background
+      dispararSync();
     } catch (erro) {
       mostrarToast({
         titulo: 'Falha ao salvar perfil',
@@ -423,7 +631,7 @@ document.getElementById('forecast-banner')?.addEventListener('click', async (eve
       btn.innerText = textoOriginal;
     }
   });
-
+  
   document.getElementById('conta-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const novoEmail = document.getElementById('input-novo-email').value.trim();
@@ -563,33 +771,89 @@ document.getElementById('btn-dispensar-aviso-folga')?.addEventListener('click', 
       return;
     }
 
-    const executarMutacao = async () => {
-    if (tipo === 'Folga') {
-      await estenderUltimoTrabalhoSeNecessario(data_inicio);
-        estado.continuaTrabalhandoConfirmadoHoje = null;
-        salvarContinuaTrabalhandoHoje(estado.usuarioAtual.id, null);
-      }
-
-      await salvarEscala({
-        editId,
-        userId: estado.usuarioAtual.id,
-        payload: { tipo, data_inicio, data_fim, dias_totais, observacao }
-      });
-
-      fecharModalRegistroUI((estado.perfilAtual?.embarcacao || '').trim());
-      await carregarEscalasApp();
-    };
-
     btnSalvar.disabled = true;
     btnSalvar.innerText = editId ? 'Atualizando...' : 'Salvando...';
 
     try {
-      await executarMutacao();
+      const userId = estado.usuarioAtual.id;
+
+      if (tipo === 'Folga') {
+        await estenderUltimoTrabalhoSeNecessario(data_inicio, userId);
+        estado.continuaTrabalhandoConfirmadoHoje = null;
+        salvarContinuaTrabalhandoHoje(userId, null);
+      }
+
+      const existente = editId
+        ? estado.registrosCache.find((r) => String(r.id) === String(editId))
+        : null;
+
+      const idRegistro = editId
+        ? (existente?.id ?? (editId.startsWith('temp_') ? editId : Number(editId)))
+        : `temp_${crypto.randomUUID()}`;
+
+      const registroOtimista = {
+        ...(existente || {}),
+        id: idRegistro,
+        userId,
+        user_id: userId,
+        tipo,
+        data_inicio,
+        data_fim,
+        dias_totais,
+        observacao: observacao || null,
+        sincronizado: false,
+        erroNegocio: false, // Limpa o status de conflito ao tentar nova submissão
+        atualizadoEmLocal: new Date().toISOString()
+      };
+
+      // 1. Atualiza estado em memória imediatamente
+      const idx = estado.registrosCache.findIndex((r) => String(r.id) === String(idRegistro));
+      if (idx >= 0) {
+        estado.registrosCache[idx] = registroOtimista;
+      } else {
+        estado.registrosCache.push(registroOtimista);
+      }
+
+      estado.registrosCache.sort((a, b) =>
+        (b.data_inicio || '').localeCompare(a.data_inicio || '')
+      );
+
+      // 2. Persiste no IndexedDB local e enfileira a mutação FIFO
+      await salvarEscalasLocais(userId, [registroOtimista], false);
+
+      if (editId) {
+        await enfileirarMutacao('escalas', 'UPDATE', {
+          editId: idRegistro,
+          id: idRegistro,
+          userId,
+          tipo,
+          data_inicio,
+          data_fim,
+          dias_totais,
+          observacao: observacao || null
+        });
+      } else {
+        await enfileirarMutacao('escalas', 'INSERT', {
+          id: idRegistro,
+          userId,
+          tipo,
+          data_inicio,
+          data_fim,
+          dias_totais,
+          observacao: observacao || null
+        });
+      }
+
+      // 3. Fecha modal e re-renderiza métricas, tabela e calendário instantaneamente
+      fecharModalRegistroUI((estado.perfilAtual?.embarcacao || '').trim());
+      atualizarTelasDeEscala();
+
+      // 4. Dispara drenagem da fila em background (não bloqueante)
+      dispararSync();
     } catch (erro) {
       mostrarToast({
-        titulo: editId ? 'Falha ao atualizar registro' : 'Falha ao salvar registro',
-        mensagem: traduzirErroSupabase(erro, 'Não foi possível salvar o registro. Seus dados continuam no formulário.'),
-        retryFn: executarMutacao
+        titulo: editId ? 'Falha ao atualizar localmente' : 'Falha ao salvar localmente',
+        mensagem: erro?.message || 'Não foi possível gravar o registro no dispositivo.'
       });
     } finally {
       btnSalvar.disabled = false;
@@ -597,16 +861,20 @@ document.getElementById('btn-dispensar-aviso-folga')?.addEventListener('click', 
     }
   });
 
-  document.getElementById('lista-escalas')?.addEventListener('click', async (event) => {
+document.getElementById('lista-escalas')?.addEventListener('click', async (event) => {
     const botao = event.target.closest('button[data-action]');
-    if (!botao) return;
+    if (!botao || !estado.usuarioAtual) return;
 
     const acao = botao.dataset.action;
-    const id = Number(botao.dataset.id);
-    if (!Number.isFinite(id)) return;
+    const rawId = botao.dataset.id;
+    if (!rawId) return;
+
+    const isTemp = rawId.startsWith('temp_');
+    const id = isTemp ? rawId : Number(rawId);
+    if (!isTemp && !Number.isFinite(id)) return;
 
     if (acao === 'editar') {
-      const item = estado.registrosCache.find((r) => Number(r.id) === id);
+      const item = estado.registrosCache.find((r) => String(r.id) === String(id));
       if (item) abrirModalEdicaoRegistroUI(item);
       return;
     }
@@ -614,18 +882,28 @@ document.getElementById('btn-dispensar-aviso-folga')?.addEventListener('click', 
     if (acao === 'excluir') {
       if (!confirm('Tem certeza que deseja apagar este registro?')) return;
 
-      const executarExclusao = async () => {
-        await excluirEscalaPorId(id);
-        await carregarEscalasApp();
-      };
+      const userId = estado.usuarioAtual.id;
 
       try {
-        await executarExclusao();
+        // 1. Remove da memória imediatamente
+        estado.registrosCache = estado.registrosCache.filter(
+          (r) => String(r.id) !== String(id)
+        );
+
+        // 2. Remove do IndexedDB e enfileira na sync_queue
+        await removerEscalaLocal(id);
+        await enfileirarMutacao('escalas', 'DELETE', { id, userId });
+
+        // 3. Atualiza métricas, tabela e calendário na hora
+        atualizarTelasDeEscala();
+
+        // 4. Tenta sincronizar em segundo plano (se offline, a fila segura)
+        dispararSync();
       } catch (erro) {
+        console.error('[Escalas] Erro ao excluir registro localmente:', erro);
         mostrarToast({
-          titulo: 'Falha ao excluir registro',
-          mensagem: traduzirErroSupabase(erro, 'Não foi possível excluir o registro.'),
-          retryFn: executarExclusao
+          titulo: 'Falha ao excluir localmente',
+          mensagem: 'Não foi possível remover o registro do dispositivo.'
         });
       }
     }
@@ -638,7 +916,7 @@ document.getElementById('btn-dispensar-aviso-folga')?.addEventListener('click', 
     const executarLimpeza = async () => {
       await limparEscalasUsuario(estado.usuarioAtual.id);
       fecharModalRegistroUI((estado.perfilAtual?.embarcacao || '').trim());
-      await carregarEscalasApp();
+      await carregarEscalasApp({ renderLocalPrimeiro: false});
     };
 
     try {
@@ -655,7 +933,7 @@ document.getElementById('btn-dispensar-aviso-folga')?.addEventListener('click', 
   window.addEventListener('online', async () => {
     if (!estado.usuarioAtual) return;
     await carregarPerfilApp();
-    await carregarEscalasApp();
+    await carregarEscalasApp({ renderLocalPrimeiro: false });
   });
 
   window.addEventListener('offline', () => {
@@ -664,7 +942,7 @@ document.getElementById('btn-dispensar-aviso-folga')?.addEventListener('click', 
     atualizarBannerOffline({ ativo: true, salvoEm: cached?.salvoEm });
   });
 
-  // Aviso discreto em caso de falha na migração de localStorage -> IndexedDB
+// Aviso discreto em caso de falha na migração de localStorage -> IndexedDB
   window.addEventListener('migracao:falha', (evento) => {
     const mensagem = evento.detail?.mensagem || 'Sincronização do armazenamento local pendente.';
     mostrarToast({
@@ -672,10 +950,42 @@ document.getElementById('btn-dispensar-aviso-folga')?.addEventListener('click', 
       mensagem
     });
   });
+
+  // Aviso quando o servidor rejeita uma escala por conflito de datas (ex: erro 23P01)
+window.addEventListener('sync:erro_negocio', async (evento) => {
+    const { item, erro } = evento.detail || {};
+    const mensagem = traduzirErroSupabase(
+      erro,
+      'Já existe um registro de Porto, Embarque ou Folga nessas datas. Ajuste o período ou edite o lançamento existente.'
+    );
+
+    mostrarToast({
+      titulo: 'Conflito na sincronização',
+      mensagem
+    });
+
+    if (item?.tabela === 'escalas' && estado.usuarioAtual) {
+      const idAlvo = String(item.payload?.editId ?? item.payload?.id ?? '');
+      const idx = estado.registrosCache.findIndex((r) => String(r.id) === idAlvo);
+
+      if (idx >= 0) {
+        const escalaComConflito = {
+          ...estado.registrosCache[idx],
+          sincronizado: false,
+          erroNegocio: true
+        };
+        estado.registrosCache[idx] = escalaComConflito;
+
+        await salvarEscalasLocais(estado.usuarioAtual.id, [escalaComConflito], false);
+        atualizarTelasDeEscala();
+      }
+    }
+  });
 }
 
 async function iniciarApp() {
   vincularEventos();
+  inicializarSyncEngine();
 
   try {
     obterClienteSupabase();
@@ -684,10 +994,12 @@ async function iniciarApp() {
     return;
   }
 
-  escutarMudancaAuth((session) => {
-    aplicarSessao(session);
+  // 1. Escuta mudanças subsequentes de autenticação (login/logout)
+  escutarMudancaAuth(async (sessao) => {
+    await aplicarSessao(sessao);
   });
 
+// 2. Resolve a sessão inicial salva
   try {
     const sessaoInicial = await obterSessaoAtual();
     await aplicarSessao(sessaoInicial);

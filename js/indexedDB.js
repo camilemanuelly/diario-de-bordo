@@ -95,14 +95,14 @@ export async function salvarEscalasLocais(userId, listaEscalas, sincronizado = t
     const tx = db.transaction('escalas', 'readwrite');
     const store = tx.objectStore('escalas');
 
-    for (const escala of listaEscalas) {
-      store.put({
-        ...escala,
-        userId,
-        sincronizado,
-        atualizadoEmLocal: new Date().toISOString()
-      });
-    }
+  for (const escala of listaEscalas) {
+    store.put({
+      ...escala,
+      userId,
+      sincronizado: escala.sincronizado ?? sincronizado,
+      atualizadoEmLocal: new Date().toISOString()
+  });
+}
 
     tx.oncomplete = () => resolve(true);
     tx.onerror = (e) => reject(e.target.error);
@@ -287,5 +287,30 @@ export async function confirmarEscalaSincronizada(tempId, escalaServidor) {
     tx.oncomplete = () => resolve(true);
     tx.onerror = (e) => reject(e.target.error);
     tx.onabort = (e) => reject(new Error(`Transação abortada: ${e.target.error}`));
+  });
+}
+
+/**
+ * Crash recovery: itens que ficaram em 'processando' (aba fechada
+ * no meio do envio) voltam para 'pendente' no próximo boot.
+ * Idempotente: chamar múltiplas vezes é seguro.
+ */
+export async function resetarStatusProcessando() {
+  const db = await abrirBanco();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('sync_queue', 'readwrite');
+    const store = tx.objectStore('sync_queue');
+    const index = store.index('idx_status');
+    const request = index.getAll('processando');
+
+    request.onsuccess = () => {
+      const itens = request.result || [];
+      for (const item of itens) {
+        item.status = 'pendente';
+        store.put(item);
+      }
+      resolve(itens.length);
+    };
+    tx.onerror = (e) => reject(e.target.error);
   });
 }

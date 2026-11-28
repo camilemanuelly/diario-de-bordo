@@ -224,30 +224,45 @@ export function renderizarMetricasUI(metricas) {
 }
 
 export function renderizarTabelaEscalasUI(registros) {
-  const tbody = document.getElementById('lista-escalas');
+  const tbody = document.getElementById('corpo-tabela-escalas');
+  const semRegistros = document.getElementById('sem-registros');
   if (!tbody) return;
-  tbody.innerHTML = '';
 
-  if (!registros || registros.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">Nenhum registro encontrado.</td></tr>';
+  tbody.innerHTML = '';
+  if (!Array.isArray(registros) || registros.length === 0) {
+    if (semRegistros) semRegistros.style.display = 'block';
     return;
   }
+  if (semRegistros) semRegistros.style.display = 'none';
 
   for (const item of registros) {
     const tr = document.createElement('tr');
-tr.innerHTML = `
-  <td data-label="Tipo"><span class="tag">${escaparHTML(item.tipo)}</span></td>
-  <td data-label="Início">${formatarDataBR(item.data_inicio)}</td>
-  <td data-label="Fim">${formatarDataBR(item.data_fim)}</td>
-  <td data-label="Dias"><strong>${Number(item.dias_totais) || 0}d</strong></td>
-  <td data-label="Observação">${escaparHTML(item.observacao || '—')}</td>
-  <td data-label="Ações">
-    <div class="row-actions">
-      <button type="button" class="btn-link" data-action="editar" data-id="${item.id}">Editar</button>
-      <button type="button" class="btn-link danger" data-action="excluir" data-id="${item.id}">Excluir</button>
-    </div>
-  </td>
-`;
+
+    let badgeStatus = '';
+    if (item.erroNegocio) {
+      badgeStatus = `<span class="tag" style="background: rgba(248, 113, 113, 0.2); border: 1px solid rgba(248, 113, 113, 0.45); color: #fca5a5; font-size: 0.72rem; padding: 2px 6px;" title="Conflito de datas com o servidor">Conflito</span>`;
+    } else if (item.sincronizado === false) {
+      badgeStatus = `<span class="tag" style="background: rgba(251, 191, 36, 0.16); border: 1px solid rgba(251, 191, 36, 0.4); color: #fde68a; font-size: 0.72rem; padding: 2px 6px;" title="Aguardando conexão para sincronizar">Pendente</span>`;
+    }
+
+    tr.innerHTML = `
+      <td data-label="Tipo">
+        <div style="display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+          <span class="tag">${escaparHTML(item.tipo)}</span>
+          ${badgeStatus}
+        </div>
+      </td>
+      <td data-label="Início">${formatarDataBR(item.data_inicio)}</td>
+      <td data-label="Fim">${formatarDataBR(item.data_fim)}</td>
+      <td data-label="Dias"><strong>${Number(item.dias_totais) || 0}d</strong></td>
+      <td data-label="Observação">${escaparHTML(item.observacao || '—')}</td>
+      <td data-label="Ações">
+        <div class="row-actions">
+          <button type="button" class="btn-link" data-action="editar" data-id="${item.id}">Editar</button>
+          <button type="button" class="btn-link danger" data-action="excluir" data-id="${item.id}">Excluir</button>
+        </div>
+      </td>
+    `;
     tbody.appendChild(tr);
   }
 }
