@@ -235,10 +235,8 @@ async function carregarEscalasApp(opcoes = { renderLocalPrimeiro: true }) {
     if (opcoes.renderLocalPrimeiro) {
       try {
         escalasLocais = (await obterEscalasLocais(userId)) || [];
-        if (escalasLocais.length > 0) {
-          estado.registrosCache = escalasLocais;
-          atualizarTelasDeEscala();
-        }
+        estado.registrosCache = escalasLocais;
+        atualizarTelasDeEscala();
       } catch (erroIdb) {
         console.warn('[Escalas] Leitura local IDB falhou:', erroIdb);
       }
@@ -246,6 +244,7 @@ async function carregarEscalasApp(opcoes = { renderLocalPrimeiro: true }) {
 
     if (!navigator.onLine) {
       atualizarBannerOffline({ ativo: true });
+      atualizarTelasDeEscala();
       return;
     }
 
@@ -271,6 +270,7 @@ async function carregarEscalasApp(opcoes = { renderLocalPrimeiro: true }) {
     } catch (erro) {
       console.warn('[Escalas] Revalidação remota falhou:', erro);
       atualizarBannerOffline({ ativo: true });
+      atualizarTelasDeEscala();
     }
   } finally {
     carregandoEscalas = false;
@@ -1013,7 +1013,7 @@ window.addEventListener('sync:erro_negocio', async (evento) => {
     }
   });
 }
- 
+
 async function iniciarApp() {
   vincularEventos();
   inicializarSyncEngine();

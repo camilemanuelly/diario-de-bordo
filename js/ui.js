@@ -224,7 +224,9 @@ export function renderizarMetricasUI(metricas) {
 }
 
 export function renderizarTabelaEscalasUI(registros) {
-  const tbody = document.getElementById('corpo-tabela-escalas');
+  const tbody =
+    document.getElementById('lista-escalas') ||
+    document.getElementById('corpo-tabela-escalas');
   const semRegistros = document.getElementById('sem-registros');
   if (!tbody) return;
 
