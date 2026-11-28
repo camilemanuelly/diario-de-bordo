@@ -976,13 +976,44 @@ window.addEventListener('sync:erro_negocio', async (evento) => {
         };
         estado.registrosCache[idx] = escalaComConflito;
 
-        await salvarEscalasLocais(estado.usuarioAtual.id, [escalaComConflito], false);
+      await salvarEscalasLocais(estado.usuarioAtual.id, [escalaComConflito], false);
         atualizarTelasDeEscala();
       }
     }
   });
-}
 
+  window.addEventListener('sync:sucesso', (evento) => {
+    const { tabela, tempId, registroServidor } = evento.detail || {};
+
+    if (tabela === 'escalas' && registroServidor && estado.registrosCache) {
+      const idBusca = String(tempId ?? registroServidor.id);
+      const idx = estado.registrosCache.findIndex(
+        (r) => String(r.id) === idBusca || String(r.id) === String(registroServidor.id)
+      );
+
+      const escalaAtualizada = {
+        ...(idx >= 0 ? estado.registrosCache[idx] : {}),
+        ...registroServidor,
+        sincronizado: true,
+        erroNegocio: false
+      };
+
+      if (idx >= 0) {
+        estado.registrosCache[idx] = escalaAtualizada;
+      } else {
+        estado.registrosCache.push(escalaAtualizada);
+      }
+
+      // Mantém a ordenação decrescente por data_inicio
+      estado.registrosCache.sort((a, b) =>
+        (b.data_inicio || '').localeCompare(a.data_inicio || '')
+      );
+
+      atualizarTelasDeEscala();
+    }
+  });
+}
+ 
 async function iniciarApp() {
   vincularEventos();
   inicializarSyncEngine();

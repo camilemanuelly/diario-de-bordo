@@ -133,15 +133,29 @@ async function despacharMutacao(item) {
         throw new Error('Servidor não retornou o registro de escala inserido.');
       }
 
-      // Substitui temp_ -> idReal e propaga em itens dependentes da fila
+      // 1. Substitui temp_ -> idReal e propaga em itens dependentes da fila
       await confirmarEscalaSincronizada(tempId, registroServidor);
+
+      // 2. Notifica a UI para limpar a badge "Pendente" instantaneamente
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(
+          new CustomEvent('sync:sucesso', {
+            detail: {
+              tabela: 'escalas',
+              operacao: 'INSERT',
+              tempId,
+              registroServidor
+            }
+          })
+        );
+      }
       return;
     }
 
     if (operacao === 'UPDATE') {
-      const idReal = payload.editId || payload.id;
+      const idAlvo = payload.editId || payload.id;
       const registroServidor = await salvarEscala({
-        editId: idReal,
+        editId: idAlvo,
         userId: payload.userId || payload.user_id,
         payload: {
           tipo: payload.tipo,
@@ -156,7 +170,22 @@ async function despacharMutacao(item) {
         throw new Error('Servidor não retornou o registro de escala atualizado.');
       }
 
-      await confirmarEscalaSincronizada(idReal, registroServidor);
+      // 1. Grava no IndexedDB com sincronizado: true (confirmarEscalaSincronizada faz isso com segurança)
+      await confirmarEscalaSincronizada(idAlvo, registroServidor);
+
+      // 2. Notifica a UI para atualizar o registro em memória
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(
+          new CustomEvent('sync:sucesso', {
+            detail: {
+              tabela: 'escalas',
+              operacao: 'UPDATE',
+              tempId: idAlvo,
+              registroServidor
+            }
+          })
+        );
+      }
       return;
     }
 
@@ -190,16 +219,30 @@ async function despacharMutacao(item) {
  * Inicializa os gatilhos automáticos do SyncEngine
  */
 export function inicializarSyncEngine() {
-  if (typeof window === 'undefined') return;
+// No bloco INSERT (logo após await confirmarEscalaSincronizada(tempId, registroServidor)):
+if (typeof window !== 'undefined' && window.dispatchEvent) {
+  window.dispatchEvent(
+    new CustomEvent('sync:sucesso', {
+      detail: {
+        tabela: 'escalas',
+        operacao: 'INSERT',
+        tempId,
+        registroServidor
+      }
+    })
+  );
+}
 
-  // Gatilho 1: Reconexão de rede
-  window.addEventListener('online', () => {
-    console.info('[SyncEngine] Conexão restabelecida. Disparando fila...');
-    dispararSync();
-  });
-
-  // Gatilho 2: Checagem inicial no boot
-  if (navigator.onLine) {
-    dispararSync();
-  }
+// No bloco UPDATE (logo após atualizar no Supabase e salvarEscalasLocais / confirmarEscalaSincronizada):
+if (typeof window !== 'undefined' && window.dispatchEvent) {
+  window.dispatchEvent(
+    new CustomEvent('sync:sucesso', {
+      detail: {
+        tabela: 'escalas',
+        operacao: 'UPDATE',
+        tempId: idAlvo,
+        registroServidor
+      }
+    })
+  );
 }
