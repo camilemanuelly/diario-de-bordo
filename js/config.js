@@ -1,7 +1,7 @@
 export const APP_CONFIG = {
   supabaseUrl: 'https://lnnsabfptrihvqxjsjet.supabase.co',
   supabaseKey: 'sb_publishable_JccD6GwRfiieTSCoqlJt9A_jrn--ykd',
-  cacheName: 'diario-bordo-shell-v1',
+  cacheName: 'diario-bordo-shell-v3',
   escalaPadrao: {
     diasTrabalho: 10,
     diasFolga: 5,

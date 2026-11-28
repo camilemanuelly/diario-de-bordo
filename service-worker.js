@@ -1,4 +1,6 @@
-const CACHE_NAME = 'diario-bordo-shell-v2';
+const CACHE_NAME = 'diario-bordo-shell-v3';
+
+const SUPABASE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 
 const ASSETS_ESTATICOS = [
   './',
@@ -7,17 +9,33 @@ const ASSETS_ESTATICOS = [
   './js/config.js',
   './js/escalaEngine.js',
   './js/storageCache.js',
+  './js/indexedDB.js',
+  './js/migracao.js',
+  './js/syncEngine.js',
   './js/supabaseClient.js',
   './js/ui.js',
   './js/app.js',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  SUPABASE_SDK_URL
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_ESTATICOS))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await Promise.all(
+        ASSETS_ESTATICOS.map(async (url) => {
+          const req = url.startsWith('http')
+            ? new Request(url, { mode: 'cors', credentials: 'omit' })
+            : url;
+          const resp = await fetch(req);
+          if (resp && resp.ok) {
+            await cache.put(req, resp);
+          }
+        })
+      );
+    })
   );
   self.skipWaiting();
 });
@@ -40,9 +58,10 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
+  const ehSdkSupabase = request.url.startsWith(SUPABASE_SDK_URL);
 
-  // Nunca intercepta chamadas ao Supabase nem requisições cross-origin de API
-  if (url.hostname.endsWith('.supabase.co') || url.origin !== self.location.origin) {
+  // Nunca intercepta chamadas de dados/auth do Supabase nem outras origens não cacheadas
+  if (url.hostname.endsWith('.supabase.co') || (url.origin !== self.location.origin && !ehSdkSupabase)) {
     return;
   }
 
