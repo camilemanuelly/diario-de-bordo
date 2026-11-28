@@ -57,18 +57,15 @@ export async function processarFilaSincronizacao() {
     }
 
     for (const item of itensPendentes) {
-      // Interrompe se a conexão cair no meio do processamento da fila
       if (!navigator.onLine) break;
 
       await marcarStatusFila(item.id, 'processando');
 
       try {
         await despacharMutacao(item);
-        // Sucesso: remove o item processado da fila
         await removerDaFila(item.id);
       } catch (erro) {
         if (ehErroDeRede(erro)) {
-          // Erro de infraestrutura: agenda retry exponencial e interrompe a fila
           const { proximaTentativaEm } = await reagendarTentativaFila(item.id, item.tentativas);
           const tempoEspera = Math.max(0, proximaTentativaEm - Date.now());
 
@@ -79,8 +76,6 @@ export async function processarFilaSincronizacao() {
           console.warn(`[SyncEngine] Queda de rede. Nova tentativa em ${Math.round(tempoEspera / 1000)}s`);
           break;
         } else {
-          // Erro de negócio (ex: violação de exclusão daterange/btree_gist):
-          // Marca erro permanente na fila e dispara evento para alerta na UI
           await marcarStatusFila(item.id, 'erro_negocio', erro);
 
           if (typeof window !== 'undefined' && window.dispatchEvent) {
@@ -133,10 +128,8 @@ async function despacharMutacao(item) {
         throw new Error('Servidor não retornou o registro de escala inserido.');
       }
 
-      // 1. Substitui temp_ -> idReal e propaga em itens dependentes da fila
       await confirmarEscalaSincronizada(tempId, registroServidor);
 
-      // 2. Notifica a UI para limpar a badge "Pendente" instantaneamente
       if (typeof window !== 'undefined' && window.dispatchEvent) {
         window.dispatchEvent(
           new CustomEvent('sync:sucesso', {
@@ -170,10 +163,8 @@ async function despacharMutacao(item) {
         throw new Error('Servidor não retornou o registro de escala atualizado.');
       }
 
-      // 1. Grava no IndexedDB com sincronizado: true (confirmarEscalaSincronizada faz isso com segurança)
       await confirmarEscalaSincronizada(idAlvo, registroServidor);
 
-      // 2. Notifica a UI para atualizar o registro em memória
       if (typeof window !== 'undefined' && window.dispatchEvent) {
         window.dispatchEvent(
           new CustomEvent('sync:sucesso', {
@@ -191,7 +182,6 @@ async function despacharMutacao(item) {
 
     if (operacao === 'DELETE') {
       const id = payload.id;
-      // Se era registro provisório que sequer subiu para a nuvem, apenas limpa localmente
       if (typeof id === 'string' && id.startsWith('temp_')) {
         await removerEscalaLocal(id);
         return;
@@ -219,30 +209,19 @@ async function despacharMutacao(item) {
  * Inicializa os gatilhos automáticos do SyncEngine
  */
 export function inicializarSyncEngine() {
-// No bloco INSERT (logo após await confirmarEscalaSincronizada(tempId, registroServidor)):
-if (typeof window !== 'undefined' && window.dispatchEvent) {
-  window.dispatchEvent(
-    new CustomEvent('sync:sucesso', {
-      detail: {
-        tabela: 'escalas',
-        operacao: 'INSERT',
-        tempId,
-        registroServidor
-      }
-    })
-  );
-}
+  if (typeof window === 'undefined') return;
 
-// No bloco UPDATE (logo após atualizar no Supabase e salvarEscalasLocais / confirmarEscalaSincronizada):
-if (typeof window !== 'undefined' && window.dispatchEvent) {
-  window.dispatchEvent(
-    new CustomEvent('sync:sucesso', {
-      detail: {
-        tabela: 'escalas',
-        operacao: 'UPDATE',
-        tempId: idAlvo,
-        registroServidor
-      }
-    })
-  );
+  window.addEventListener('online', () => {
+    processarFilaSincronizacao();
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && navigator.onLine) {
+      processarFilaSincronizacao();
+    }
+  });
+
+  if (navigator.onLine) {
+    processarFilaSincronizacao();
+  }
 }
